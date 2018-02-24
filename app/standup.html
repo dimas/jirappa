@@ -1,0 +1,50 @@
+<head>
+ <script src="js/jquery-3.2.1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<!-- Latest compiled and minified Locales -->
+
+ <script src="lib/duration.js"></script>
+ <script src="lib/misc.js"></script>
+ <script src="lib/config.js"></script>
+ <script src="lib/jira.js"></script>
+ <script src="lib/jira-report.js"></script>
+
+ <style>
+
+.date {
+vertical-align: top
+}
+
+.odd {
+    background-color: #F0F0F0;
+}
+
+</style>
+
+</head>
+<html>
+
+<h3>Worklog</h3>
+<button onclick="loadWorklog()">Load</button>
+<table id="worklog" data-row-style="rowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+  <thead>
+    <tr class="danger">
+      <th data-field="date">Date</th>
+      <th data-field="person">Developer</th>
+      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
+      <th data-field="issueSummary" data-cell-style="issueCellStyle">Summary</th>
+      <th data-field="issueStatus">Status</th>
+      <th data-field="timeSpent" data-formatter="formatDuration">Logged</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<html>
+
+

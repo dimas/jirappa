@@ -1,0 +1,54 @@
+<head>
+ <script src="js/jquery-3.2.1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<!-- Latest compiled and minified Locales -->
+
+ <script src="lib/duration.js"></script>
+ <script src="lib/misc.js"></script>
+ <script src="lib/config.js"></script>
+ <script src="lib/jira.js"></script>
+ <script src="lib/jira-report.js"></script>
+
+ <style>
+
+.date {
+vertical-align: top
+}
+
+.odd {
+    background-color: #F0F0F0;
+}
+
+</style>
+
+</head>
+<html>
+
+<h3>Task progress</h3>
+<button onclick="loadProgress()">Load</button>
+<table id="progress" data-row-style="rowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+  <thead>
+    <tr class="danger">
+      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
+      <th data-field="issueSummary" data-cell-style="issueCellStyle">Summary</th>
+      <th data-field="contributors" data-formatter="formatContributors">Contributors</th>
+      <th data-field="issueStatus">Status</th>
+      <th data-field="timeEstimated" data-formatter="formatDuration">Estimate</th>
+<!--
+      <th data-field="timeSpent" data-formatter="formatDuration">Spent</th>
+      <th data-field="timeRemain" data-formatter="formatDuration" data-cell-style="timeRemainCellStyle">Remain</th>
+-->
+      <th data-field="timeProgress" data-formatter="formatProgress">Progress</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<html>
+
+

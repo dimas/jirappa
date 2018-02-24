@@ -1,0 +1,91 @@
+<head>
+ <script src="js/jquery-3.2.1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<!-- Latest compiled and minified Locales -->
+
+ <script src="lib/duration.js"></script>
+ <script src="lib/misc.js"></script>
+ <script src="lib/config.js"></script>
+ <script src="lib/jira.js"></script>
+ <script src="lib/jira-report.js"></script>
+ <script src="lib/planning.js"></script>
+
+ <style>
+
+.date {
+vertical-align: top
+}
+
+.odd {
+    background-color: #F0F0F0;
+}
+
+</style>
+
+</head>
+<html>
+
+<h2>Sprint plan</h2>
+<button onclick="loadAll(); ">Load</button>
+
+<h3>Debt carried over - active sprint</h3>
+<table id="debt" class="table table-bordered table-inverse" style="vertical-align: top">
+  <thead>
+    <tr>
+      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
+      <th data-field="issueSummary" data-cell-style="issueCellStyle">Summary</th>
+      <th data-field="issueStatus">Status</th>
+      <th data-field="assignee" data-formatter="formatAssigneeSelector">Assignee</th>
+      <th data-field="timeProgress" data-formatter="formatProgress">Progress</th>
+      <th data-field="debt" data-formatter="formatIssueDebt">Remaining debt</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<h3>Developers stats</h3>
+<table id="developers" data-row-style="developerStatsRowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+  <thead>
+    <tr>
+      <th data-field="displayName">Developer</th>
+      <th data-field="debt" data-formatter="formatDurationDays">Debt</th>
+      <th data-field="capacity" data-formatter="formatDeveloperCapacity">Capacity</th>
+      <th data-field="selected" data-formatter="formatDurationDays">Selected</th>
+      <th data-field="available" data-formatter="formatAvailable">Available</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<h3>Issues - future sprint</h3>
+Sprint: <select id="sprint-selector" size="1">
+<option value=""></option>
+</select>
+
+
+<table id="plan" data-row-style="rowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+  <thead>
+    <tr>
+      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
+      <th data-field="issueSummary" data-cell-style="issueCellStyle">Summary</th>
+      <th data-field="issueStatus">Status</th>
+      <th data-field="timeProgress.estimated" data-formatter="formatDuration">Estimate</th>
+      <th data-field="assignee" data-formatter="formatAssigneeSelector">Assignee</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+
+<button onclick="applyPlanAssignments();">Apply assignment</button>
+
+<html>
+
+
