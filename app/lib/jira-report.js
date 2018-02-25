@@ -16,16 +16,15 @@ function formatContributors(contributors) {
 function formatProgress(progress) {
     var result = '';
 
-    if (progress.estimated == null || progress.estimated == null) {
+    if (progress.estimated == null || progress.estimated == null || progress.left == null) {
         return result;
     }
 
     var percent = Math.round(100 * progress.spent / progress.estimated);
 
-    var remain = progress.estimated - progress.spent;
     var text = 'Estimated: ' + formatDuration(progress.estimated) + '\n' +
                'Spent: ' + formatDuration(progress.spent) + ' (' + percent + '%)\n' +
-               'Remain: ' + formatDuration(remain);
+               'Left: ' + formatDuration(progress.left);
 /*
     if (progress.spent <= progress.estimated) {
         remainingColour = (remain > 3600 * WORKING_HOURS_PER_DAY) ? '#D0D0D0' : '#D0D080';
@@ -349,6 +348,7 @@ function renderProgressTable(issues) {
                         status: issue.fields.status.name,
                         timeEstimated: issue.fields.aggregatetimeoriginalestimate,
                         timeSpent: issue.fields.aggregatetimespent,
+                        timeLeft: issue.fields.aggregatetimeestimate,
                         assignee: taskIssue.fields.assignee,
                         contributors: contributors,
                         lastWorklogDate: lastWorklogDate
@@ -358,6 +358,7 @@ function renderProgressTable(issues) {
                 // Just in case we found parent later than stub was created
                 taskData.timeEstimated = issue.fields.aggregatetimeoriginalestimate;
                 taskData.timeSpent = issue.fields.aggregatetimespent;
+                taskData.timeLeft = issue.fields.aggregatetimeestimate;
                 taskData.assignee = issue.fields.assignee;
                 taskData.contributors = contributors;
             }
@@ -404,13 +405,13 @@ function renderProgressTable(issues) {
                     issueStatus: taskData.status,
                     timeEstimated: taskData.timeEstimated,
                     timeSpent: taskData.timeSpent,
-                    timeRemain: taskData.timeEstimated - taskData.timeSpent,
+                    timeLeft: taskData.timeLeft,
                     assignee: taskData.assignee,
                     contributors: contributors,
                     timeProgress: {
                       estimated: taskData.timeEstimated,
                       spent: taskData.timeSpent,
-                      remain: taskData.timeEstimated - taskData.timeSpent
+                      left: taskData.timeLeft
                     }
                 });
         }

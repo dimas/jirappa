@@ -494,6 +494,7 @@ function processDebtIssues(issues) {
         issueData.status = issue.fields.status.name;
         issueData.timeEstimated = issue.fields.timeoriginalestimate;
         issueData.timeSpent = issue.fields.timespent;
+        issueData.timeLeft = issue.fields.timeestimate;
         if (issue.fields.assignee) {
             issueData.selectedAssignee = issue.fields.assignee.key;
         }
@@ -520,8 +521,9 @@ function processDebtIssues(issues) {
                     timeProgress: {
                       estimated: taskData.timeEstimated,
                       spent: taskData.timeSpent,
+                      left: taskData.timeLeft
                     },
-                    debt: Math.max(0, taskData.timeEstimated - taskData.timeSpent),
+                    debt: taskData.timeLeft
                 });
 
                 var subtasks = values(taskData.subtasks).sort(function(a, b) { return compareJiraKey(b.key, a.key); });
@@ -537,8 +539,9 @@ function processDebtIssues(issues) {
                         timeProgress: {
                           estimated: subtaskData.timeEstimated,
                           spent: subtaskData.timeSpent,
+                          left: subtaskData.timeLeft
                         },
-                        debt: Math.max(0, subtaskData.timeEstimated - subtaskData.timeSpent),
+                        debt: subtaskData.timeLeft
                     });
                 }
             }
@@ -571,9 +574,10 @@ function processDebtIssues(issues) {
 
 async function loadDebt() {
     await authenticate();
+
     var issues = await searchIssues({
         jql: "project ='" + PROJECT + "' AND sprint in openSprints()",
-        fields: 'status,summary,parent,assignee,timeoriginalestimate,timespent'
+        fields: 'status,summary,parent,assignee,timeoriginalestimate,timespent,timeestimate'
     });
 
     processDebtIssues(issues);
