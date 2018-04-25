@@ -46,7 +46,7 @@ if ARGV.size == 2
   port = ARGV[0].to_i
   jira_server = ARGV[1]
 else
-  puts 'Usage: #{File.basename(__FILE__)} port jiraserver'
+  puts "Usage: #{File.basename(__FILE__)} port jiraserver"
   exit 1
 end
 
