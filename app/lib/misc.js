@@ -21,7 +21,11 @@ function values(hash) {
 }
 
 function compare(a, b) {
-    if (a < b) {
+    if (a == null) {
+        return b == null ? 0 : 1;
+    } else if (b == null) {
+        return -1;
+    } else if (a < b) {
         return -1;
     } else if (a > b) { 
         return 1;
