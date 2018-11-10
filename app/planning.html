@@ -1,12 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+ <meta charset="utf-8">
+
  <script src="js/jquery-3.2.1.min.js"></script>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
-<!-- Latest compiled and minified Locales -->
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
  <script src="lib/duration.js"></script>
  <script src="lib/misc.js"></script>
@@ -26,12 +31,39 @@ vertical-align: top
 }
 
 </style>
-
 </head>
-<html>
 
-<h2>Sprint plan</h2>
-<button onclick="loadAll(); ">Load</button>
+<body>
+
+<h2>Sprint planning</h2>
+
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#team-tab">Team capacity</a></li>
+    <li><a data-toggle="tab" href="#debt-tab">Carried debt</a></li>
+    <li><a data-toggle="tab" href="#plan-tab">Sprint plan</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div id="team-tab" class="tab-pane fade in active">
+
+<table id="developers" data-row-style="developerStatsRowStyle" class="table table-hover table-condensed" style="vertical-align: top" data-show-footer="true" data-footer-style="developersFooterStyle">
+  <thead>
+    <tr>
+      <th data-field="displayName" data-sortable="true"  data-footer-formatter="totalLabelFooterFormatter">Developer</th>
+      <th data-field="debt" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Debt</th>
+      <th data-field="capacity" data-formatter="formatDeveloperCapacity" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Capacity</th>
+      <th data-field="selected" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Selected</th>
+      <th data-field="available" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Available</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+    </div>
+
+    <div id="debt-tab" class="tab-pane fade">
 
 <h3>Debt carried over - active sprint</h3>
 <table id="debt" class="table table-hover table-condensed" style="vertical-align: top">
@@ -49,26 +81,13 @@ vertical-align: top
   </tbody>
 </table>
 
-<h3>Developers stats</h3>
-<table id="developers" data-row-style="developerStatsRowStyle" class="table table-hover table-condensed" style="vertical-align: top">
-  <thead>
-    <tr>
-      <th data-field="displayName">Developer</th>
-      <th data-field="debt" data-formatter="formatDurationDays">Debt</th>
-      <th data-field="capacity" data-formatter="formatDeveloperCapacity">Capacity</th>
-      <th data-field="selected" data-formatter="formatDurationDays">Selected</th>
-      <th data-field="available" data-formatter="formatAvailable">Available</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
+    </div>
+    <div id="plan-tab" class="tab-pane fade">
 
-<h3>Issues - future sprint</h3>
-Sprint: <select id="sprint-selector" size="1">
+Select sprint: <select id="sprint-selector" size="1">
 <option value=""></option>
 </select>
-
+When assigmnent complete, <button onclick="applyPlanAssignments();">Save changes</button>
 
 <table id="plan" class="table table-hover table-condensed" style="vertical-align: top" data-search="true">
   <thead>
@@ -78,16 +97,16 @@ Sprint: <select id="sprint-selector" size="1">
       <th data-field="issueSummary" data-cell-style="issueCellStyle" data-sortable="true">Summary</th>
       <th data-field="issueStatus" data-sortable="true">Status</th>
       <th data-field="timeProgress.estimated" data-formatter="formatDuration" data-sortable="true">Estimate</th>
-      <th data-field="assignee" data-formatter="formatAssigneeSelector" data-sortable="true">Assignee</th>
+      <th data-field="selectedAssignee" data-formatter="formatAssigneeSelector" data-sortable="true">Assignee</th>
     </tr>
   </thead>
   <tbody>
   </tbody>
 </table>
 
+    </div>
 
-<button onclick="applyPlanAssignments();">Apply assignment</button>
+  </div>
 
-<html>
-
-
+</body>
+</html>
