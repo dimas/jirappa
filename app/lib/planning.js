@@ -17,6 +17,99 @@ function formatAssigneeSelector(assignee, row, index) {
     return result;
 }
 
+function formatIssuePriority(priority) {
+    return '<img style="width: 16px; height: 16px" src="' + priority.iconUrl + '" title="' +  priority.name + '"/>';
+}
+
+function issuePrioritySorter(a, b) {
+    return compare(a.name, b.name);
+}
+
+// Compare (sort) two rows in our issue table using the specified comparator.
+// The trick is that our table may contain subtickets that follow some of the top-level tickets.
+// This could be better represented if sub-tickets were a "details" view but then each would be
+// a separate sub-table with its own columns, formatting etc. So instead I opted for sub-tickets being
+// just "special" rows in the same table.
+// Because of that, these subtickets should always go immediately after their top level parent tickets
+// no matter what sorting order is used.
+// This function does that kind of comparison - it makes sure that subtickets obey ordering of their parents.
+function compareNestedItems(a, b, comparator) {
+    if (a.parent == null && b.parent == null) {
+        // Both are top level tickets, just compare them directly
+        return comparator(a, b);
+    } else if (a.parent == b.parent) {
+        // Both are subtickets of the same parent - compare directly
+        return comparator(a, b);
+    } else if (a.parent == b) {
+        // 'b' is parent ticket of 'a', so 'a' must always be after 'b'
+        return 1;
+    } else if (a == b.parent) {
+        // 'a' is parent ticket of 'b', so 'a' must always be before 'b'
+        return -1;
+    } else if (a.parent == null) {
+        // 'a' is a top-level ticket while 'b' is a sub-ticket. Order is determined by relationship between 'a' and parent of 'b'
+        return comparator(a, b.parent);
+    } else if (b.parent == null) {
+        // 'a' is a subticket while 'a' is a top-level ticket. Order is determined by relationship between 'b' and parent of 'a'
+        return comparator(a.parent, b);
+    } else {
+        // These are subtickets of different parents - just compare their parents
+        return comparator(a.parent, b.parent);
+    }
+}
+
+function nestedIssueTableSorter(sortName, sortOrder) {
+    console.log("customSort: " + sortName + ", " + sortOrder);
+
+    const index = this.header.fields.indexOf(this.options.sortName);
+
+    // Do not attempt to sort by nonexistent column. During init we are called with undefined
+    // Just mimic logic from the bootstrap table default sorter: https://github.com/wenzhixin/bootstrap-table/blob/7b6a3342d5ac32735ed44318a66a8292ac2e0fa1/src/bootstrap-table.js#L958
+    if (index == -1) {
+        return;
+    }
+
+    // Extractor gets value for a field.
+    // Super simplified implementation of https://github.com/wenzhixin/bootstrap-table/blob/7b6a3342d5ac32735ed44318a66a8292ac2e0fa1/src/bootstrap-table.js#L243
+    extractor = function(item) {
+        let value = item;
+        for (const p of sortName.split('.')) {
+            value = value && value[p];
+        }
+        return value;
+    }
+
+    // Check if the column has a custom sorter
+    // Super simplified implementation of what bootstrap table itself does
+    // See https://github.com/wenzhixin/bootstrap-table/blob/7b6a3342d5ac32735ed44318a66a8292ac2e0fa1/src/bootstrap-table.js#L971 
+    // and https://github.com/wenzhixin/bootstrap-table/blob/7b6a3342d5ac32735ed44318a66a8292ac2e0fa1/src/bootstrap-table.js#L166
+    // for details.
+    var sorter = null;
+    var sorterName = this.header.sorters[index];
+    if (typeof sorterName === 'string') {
+        var func = window;
+        for (const f of sorterName.split('.')) {
+            func = func && func[f];
+        }
+
+        if (func == null) {
+            return;
+        }
+
+        sorter = func;
+    } else {
+        // If no sorter is given use some simple default that just compares values
+        // (it will be invoked with (vala, valbm, rowa, rowb) but will ignore the last two params)
+        sorter = compare;
+    }
+
+    var order = (sortOrder == "desc") ? -1 : 1;
+
+    var comparator = function(a, b) { return order * sorter(extractor(a), extractor(b), a, b); };
+
+    this.data.sort(function (a, b) { return compareNestedItems(a, b, comparator); } );
+}
+
 ///////////////////////////////////////////////////////////////// SPRINTS
 
 function populateSprintSelector(sprints) {
@@ -335,6 +428,7 @@ function processSprintIssues(issues) {
         issueData.key = issue.key;
         issueData.summary = issue.fields.summary;
         issueData.status = issue.fields.status.name;
+        issueData.priority = {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl};
         issueData.timeEstimated = issue.fields.timeoriginalestimate;
         issueData.timeSpent = issue.fields.timespent;
         if (issue.fields.assignee) {
@@ -354,17 +448,20 @@ function processSprintIssues(issues) {
                     continue;
                 }
 */
-                tableItems.push({
+                parentItem = {
                     issue: taskData.key,
                     issueSummary: taskData.summary,
                     issueStatus: taskData.status,
+                    issuePriority: taskData.priority,
                     originalAssignee: taskData.assignee,
                     selectedAssignee: taskData.assignee,
                     timeProgress: {
                       estimated: taskData.timeEstimated,
                       spent: taskData.timeSpent,
                     },
-                });
+                };
+
+                tableItems.push(parentItem);
 
                 var subtasks = values(taskData.subtasks).sort(function(a, b) { return compareJiraKey(b.key, a.key); });
                 for (var s in subtasks) {
@@ -374,7 +471,9 @@ function processSprintIssues(issues) {
                         issue: subtaskData.key,
                         issueSummary: subtaskData.summary,
                         issueStatus: subtaskData.status,
+                        issuePriority: subtaskData.priority,
                         parentIssue: taskData.key,
+                        parent: parentItem,
                         originalAssignee: subtaskData.assignee,
                         selectedAssignee: subtaskData.assignee,
                         timeProgress: {
@@ -389,7 +488,10 @@ function processSprintIssues(issues) {
     table = $('#plan');
     table.bootstrapTable('destroy');
     table.bootstrapTable({
-        data: tableItems
+        data: tableItems,
+        // cannot set data-custom-sort in HTML, see https://github.com/wenzhixin/bootstrap-table/issues/2545 for details
+        // (the issue is about customSearch which had similar problem but unlike customSort it was fixed)
+        customSort: nestedIssueTableSorter
     });
 
     planTableItems = tableItems;
@@ -410,7 +512,7 @@ async function loadSprintPlan(id) {
 
     var issues = await searchIssues({
        jql: "Sprint=" + id + "",
-       fields: 'status,summary,parent,assignee,timeoriginalestimate,timespent'
+       fields: 'status,priority,summary,parent,assignee,timeoriginalestimate,timespent'
     });
 
     processSprintIssues(issues);

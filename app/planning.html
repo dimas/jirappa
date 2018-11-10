@@ -2,9 +2,10 @@
  <script src="js/jquery-3.2.1.min.js"></script>
 
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
 <!-- Latest compiled and minified JavaScript -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 <!-- Latest compiled and minified Locales -->
 
  <script src="lib/duration.js"></script>
@@ -33,7 +34,7 @@ vertical-align: top
 <button onclick="loadAll(); ">Load</button>
 
 <h3>Debt carried over - active sprint</h3>
-<table id="debt" class="table table-bordered table-inverse" style="vertical-align: top">
+<table id="debt" class="table table-hover table-condensed" style="vertical-align: top">
   <thead>
     <tr>
       <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
@@ -49,7 +50,7 @@ vertical-align: top
 </table>
 
 <h3>Developers stats</h3>
-<table id="developers" data-row-style="developerStatsRowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+<table id="developers" data-row-style="developerStatsRowStyle" class="table table-hover table-condensed" style="vertical-align: top">
   <thead>
     <tr>
       <th data-field="displayName">Developer</th>
@@ -69,14 +70,15 @@ Sprint: <select id="sprint-selector" size="1">
 </select>
 
 
-<table id="plan" data-row-style="rowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+<table id="plan" class="table table-hover table-condensed" style="vertical-align: top" data-search="true">
   <thead>
     <tr>
-      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
-      <th data-field="issueSummary" data-cell-style="issueCellStyle">Summary</th>
-      <th data-field="issueStatus">Status</th>
-      <th data-field="timeProgress.estimated" data-formatter="formatDuration">Estimate</th>
-      <th data-field="assignee" data-formatter="formatAssigneeSelector">Assignee</th>
+      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle" data-sortable="true">Issue</th>
+      <th data-field="issuePriority" data-month="1" data-sorter="issuePrioritySorter" data-formatter="formatIssuePriority" data-cell-style="issueCellStyle" data-sortable="true">Priority</th>
+      <th data-field="issueSummary" data-cell-style="issueCellStyle" data-sortable="true">Summary</th>
+      <th data-field="issueStatus" data-sortable="true">Status</th>
+      <th data-field="timeProgress.estimated" data-formatter="formatDuration" data-sortable="true">Estimate</th>
+      <th data-field="assignee" data-formatter="formatAssigneeSelector" data-sortable="true">Assignee</th>
     </tr>
   </thead>
   <tbody>
