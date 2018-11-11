@@ -41,3 +41,23 @@ function add(target, source) {
     }
 }
 
+function escapeText(text) {
+    if (!text) {
+        return '';
+    }
+
+    text = text + '';
+
+    return text.replace( /['"<>&]/g,
+        function(c) {
+            switch (c) {
+                case "'": return "&#039;";
+		case '"': return "&quot;";
+		case "<": return "&lt;";
+		case ">": return "&gt;";
+		case "&": return "&amp;";
+            }
+	}
+     );
+}
+
