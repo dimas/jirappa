@@ -1,26 +1,23 @@
 
+function getDeveloperDisplayName(personKey) {
+    var developer = getDeveloperStatsItem(personKey);
+    var name = (developer != null) ? developer.displayName : personKey;
+    return name ? name : '';
+}
+
 function formatAssigneeSelector(assignee, row, index) {
-    var result = '';
-
-    result += '<select size="1" data-type="assignee" issue-key="' + row.issue + '">';
-
-    result += '<option value=""></option>';
-
-    for (var i = 0; i < teamMembers.length; i++) {
-      result += '<option value="' + teamMembers[i].key + '"' + (row.selectedAssignee == teamMembers[i].key ? ' selected' : '') +   '>';
-      result += teamMembers[i].displayName;
-      result += '</option>';
-    }
-
-    // If ticket's original assignee is not in our team, we still need make that person available in the dropdown for this ticket
-    if (row.originalAssignee && !isTeamMember(row.originalAssignee)) {
-        result += '<option value="">----</option>';
-        result += '<option value="' + row.originalAssignee + '"' + (row.selectedAssignee == row.originalAssignee ? ' selected' : '') +   '>' + row.originalAssignee + '</option>';
-    }
-
-    result += '</select>';
-
-    return result;
+    // Generate an empty dropdown menu. It has 'dropdown-menu' <ul> element but no items in it.
+    // We dynamically populate these menus on click in generateAssigneeDropdownItems()
+    // TODO: need to improve overuse of 'style' with classes...
+    return '' +
+        '  <div class="dropdown" data-type="assignee" issue-key="' + escapeText(row.issue) + '">' +
+        '    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width: 100%; display: table">' +
+        '      <span data-type="active" style="display: table-cell; width: 100%; text-align: left">' + escapeText(getDeveloperDisplayName(row.selectedAssignee)) + '</span>' +
+        '      <span style="display: table-cell; padding-left: 10px"><span class="caret"></span></span>' +
+        '    </button>' +
+        '    <ul class="dropdown-menu dropdown-menu-right">'+
+        '    </ul>' +
+        '  </div>';
 }
 
 PRIORITY_ORDER = [
@@ -37,7 +34,7 @@ function getPriorityOrder(priorityName) {
 }
 
 function formatIssuePriority(priority) {
-    return '<img style="width: 16px; height: 16px" src="' + priority.iconUrl + '" title="' +  priority.name + '"/>';
+    return '<img style="width: 16px; height: 16px" src="' + priority.iconUrl + '" title="' +  escapeText(priority.name) + '"/>';
 }
 
 function issuePrioritySorter(a, b) {
@@ -213,13 +210,13 @@ function totalLabelFooterFormatter(data) {
 function totalDurationFooterFormatter(data) {
     var field = this.field;
 
-    var total_sum = data.reduce(
+    var total = data.reduce(
         function(sum, row) {
-            return (sum) + (parseInt(row[field]) || 0);
+            return (sum) + (parseInt(row[field], 10) || 0);
         },
         0);
 
-    return formatDurationDays(total_sum);
+    return formatDurationDays(total);
 }
 
 function developersFooterStyle(value, row, index) {
@@ -280,13 +277,7 @@ function developerStatsRowStyle(row, index) {
 }
 
 function formatDeveloperCapacity(capacity, row, index) {
-    var value = formatDurationDays(capacity);
-    if (row.developer != null) {
-        return '<input type=text data-type="capacity" person-key="' + row.developer.key  + '" value="' + value +  '" />';
-    } else {
-        // Totals
-        return value;
-    }
+    return '<input type=text data-type="capacity" person-key="' + escapeText(row.developer.key)  + '" value="' + formatDurationDays(capacity) +  '" />';
 }
 
 
@@ -297,6 +288,19 @@ var developersTableItems = [];
 
 function calculateAvailable(item) {
     item.available = item.capacity - item.debt - item.selected;
+}
+
+function initDevelopersTable() {
+    table = $('#developers');
+    table.bootstrapTable({
+//        data: tableItems
+    });
+
+    table.on("change", "input[data-type=capacity]", function(event) {
+        event.preventDefault();
+        var input = $(event.target);
+        updateDeveloperCapacity(input.attr('person-key'), input.val());
+    });
 }
 
 function renderDevelopersTable() {
@@ -310,7 +314,7 @@ function renderDevelopersTable() {
           debt: 0,
           capacity: parseDuration('9d'),
           selected: 0,
-          update() { this.available = this.capacity - this.debt - this.selected; }
+          update() { this.available = this.capacity - this.debt - this.selected; },
       });
     }
 
@@ -320,19 +324,7 @@ function renderDevelopersTable() {
 
 developersTableItems = tableItems;
 
-    table = $('#developers');
-    table.bootstrapTable({
-//        data: tableItems
-    });
-
-    table.bootstrapTable('load', tableItems);
-
-    table.on("change", "input[data-type=capacity]", function(event) {
-        event.preventDefault();
-        var input = $(event.target);
-        updateDeveloperCapacity(input.attr('person-key'), input.val());
-    });
-
+    $('#developers').bootstrapTable('load', tableItems);
 }
 
 function processUserIssues(issues) {
@@ -409,7 +401,7 @@ function recalculateDevelopersSelected() {
         var item = planTableItems[i];
         var stats = getDeveloperStatsItem(item.selectedAssignee);
         if (stats != null) {
-            stats.selected += item.timeProgress.estimated;
+            stats.selected += item.timeProgress.estimated || 0;
         }
     }
 
@@ -471,6 +463,44 @@ function updateAssignment(issueKey, developerKey) {
 
     recalculateDevelopersSelected();
     refreshDeveloperStatsTable();
+}
+
+function initPlanTable() {
+    table = $('#plan');
+    table.bootstrapTable({
+        // cannot set data-custom-sort in HTML, see https://github.com/wenzhixin/bootstrap-table/issues/2545 for details
+        // (the issue is about customSearch which had similar problem but unlike customSort it was fixed)
+        customSort: nestedIssueTableSorter
+    });
+
+    table.on("click", "div.dropdown[data-type=assignee] > ul.dropdown-menu > li", function(event) {
+        event.preventDefault();
+        var dropdown = $(event.target).closest("div.dropdown");
+        var item = $(event.target).closest("li");
+        var issueKey = dropdown.attr("issue-key");
+        var personKey = item.attr("person-key");
+
+        // Technically there is no need to update the selected (active) text in the dropdown because updateAssignment will
+        // cause table to be re-rendered and formatter re-applied to assignment cells so getDeveloperDisplayName() will update the text.
+        // But lets do it anyways for completeness so code can be copied to other places easier.
+        dropdown.find("span[data-type=active]").text(getDeveloperDisplayName(personKey));
+
+        updateAssignment(issueKey, personKey);
+    });
+
+    // Given there is `show.bs.dropdown` event, listening `click` seems to be hacky.
+    // However when I tried modifying <ul>'s HTML on `show.bs.dropdown`, it did not work and no popup was shown...
+    table.on("click", "div.dropdown[data-type=assignee]", function(event) {
+        event.preventDefault();
+        var dropdown = $(event.target).closest("div.dropdown");
+        var list = dropdown.find("ul.dropdown-menu");
+        var issueKey = dropdown.attr("issue-key");
+
+        var row = getPlanIssue(issueKey);
+        if (row != null) {
+            list.html(generateAssigneeDropdownItems(row));
+        }
+    });
 }
 
 function processSprintIssues(issues) {
@@ -566,23 +596,68 @@ function processSprintIssues(issues) {
 
     planTableItems = tableItems;
 
-    table = $('#plan');
-    table.bootstrapTable({
-        // cannot set data-custom-sort in HTML, see https://github.com/wenzhixin/bootstrap-table/issues/2545 for details
-        // (the issue is about customSearch which had similar problem but unlike customSort it was fixed)
-        customSort: nestedIssueTableSorter
-    });
-
-    table.bootstrapTable('load', tableItems);
-
-    table.on("change", "select[data-type=assignee]", function(event) {
-        event.preventDefault();
-        var input = $(event.target);
-        updateAssignment(input.attr('issue-key'), input.val());
-    });
+    $('#plan').bootstrapTable('load', tableItems);
 
     recalculateDevelopersSelected();
     refreshDeveloperStatsTable();
+}
+
+function getPlanIssue(issueKey) {
+    for (var i = 0; i < planTableItems.length; i++) {
+        if (item = planTableItems[i].issue == issueKey) {
+            return planTableItems[i];
+        }
+    }
+    return null;
+}
+
+function generateAssigneeMenuItem(personKey, active, textHtml,detailsHtml) {
+    html = '<li';
+    if (personKey) {
+        html += ' person-key="' + escapeText(personKey) + '"';
+    }
+    if (active) {
+        html += ' class="active"';
+    }
+    html += ' >'
+    html +=   '<a href="#" class="menu-item">';
+    html +=     '<span class="menu-text">' + textHtml + '</span>';
+    if (detailsHtml) {
+        html += '<span class="menu-details">' + detailsHtml + '</span>';
+    }
+
+    html +=   '</a>';
+    html += '</li>';
+    return html;
+}
+
+function generateAssigneeDropdownItems(row) {
+
+    const divider = '<li class="divider"></li>';
+
+    var html = '';
+
+    html += generateAssigneeMenuItem(null, nullifyAssignee(row.selectedAssignee) == null, '<i>Unassigned</i>', null);
+    html += divider;
+
+    for (var i = 0; i < teamMembers.length; i++) {
+      var stats = getDeveloperStatsItem(teamMembers[i].key);
+      html += generateAssigneeMenuItem(teamMembers[i].key,
+                                       row.selectedAssignee == teamMembers[i].key,
+                                       escapeText(teamMembers[i].displayName),
+                                       stats != null ? formatDurationDays(stats.available) : null);
+    }
+
+    // If ticket's original assignee is not in our team, we still need make that person available in the dropdown for this ticket
+    if (row.originalAssignee && !isTeamMember(row.originalAssignee)) {
+        html += divider
+        html += generateAssigneeMenuItem(row.originalAssignee,
+                                         row.selectedAssignee == row.originalAssignee,
+                                         escapeText(row.originalAssignee),
+                                         null);
+    }
+
+    return html;
 }
 
 async function loadSprintPlan(id) {
@@ -655,6 +730,25 @@ function updateDebtAssignment(issueKey, developerIndex) {
     debtTableItems[index].selectedAssignee = developerIndex;
     recalculateDevelopersDebt();
     refreshDeveloperStatsTable();
+}
+
+function initDebtTable() {
+    table = $('#debt');
+    table.bootstrapTable({
+//        data: tableItems
+    });
+
+    table.on("change", "input[data-type=debt]", function(event) {
+        event.preventDefault();
+        var input = $(event.target);
+        updateIssueDebt(input.attr('issue-key'), input.val());
+    });
+
+    table.on("change", "select[data-type=assignee]", function(event) {
+        event.preventDefault();
+        var input = $(event.target);
+        updateDebtAssignment(input.attr('issue-key'), input.val());
+    });
 }
 
 function processDebtIssues(issues) {
@@ -746,27 +840,9 @@ function processDebtIssues(issues) {
             }
 
 
-    table = $('#debt');
-    table.bootstrapTable({
-//        data: tableItems
-    });
-
-    table.bootstrapTable('load', tableItems);
-
     debtTableItems = tableItems;
 
-    table.on("change", "input[data-type=debt]", function(event) {
-        event.preventDefault();
-        var input = $(event.target);
-        updateIssueDebt(input.attr('issue-key'), input.val());
-    });
-
-    table.on("change", "select[data-type=assignee]", function(event) {
-        event.preventDefault();
-        var input = $(event.target);
-        updateDebtAssignment(input.attr('issue-key'), input.val());
-    });
-
+    $('#debt').bootstrapTable('load', tableItems);
 
     recalculateDevelopersDebt();
     refreshDeveloperStatsTable();
@@ -827,14 +903,14 @@ async function loadAll() {
         loadDebt(),
         discoverSprints()
     ]);
-//loadSprintPlan(2224);
 }
 
 // Init tables and load data
 $(function () {
-    processDebtIssues([]);
-    processUserIssues([]);
-    processSprintIssues([]);
+    initDevelopersTable();
+    initDebtTable();
+    initPlanTable();
+
     loadAll();
 });
 

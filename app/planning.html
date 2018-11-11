@@ -30,6 +30,31 @@ vertical-align: top
     background-color: #F0F0F0;
 }
 
+
+a.menu-item {
+    overflow: auto;
+    display: table;
+}
+
+span.menu-text {
+    display: table-cell;
+    width:100%;
+}
+
+span.menu-details {
+    display: table-cell;
+    padding-left: 10px;
+    font-style: italic;
+}
+
+span.menu-details::before {
+    content: "("
+}
+
+span.menu-details::after {
+    content: ")"
+}
+
 </style>
 </head>
 
