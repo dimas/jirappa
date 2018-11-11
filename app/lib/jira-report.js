@@ -2,13 +2,13 @@
 var worklog_data = [];
 
 function formatIssueKey(issue) {
-    return '<a href="' + JIRA_URL + '/browse/' + issue + '">' + issue + '</a>';
+    return '<a target="_blank" href="' + JIRA_URL + '/browse/' + escapeText(issue) + '">' + escapeText(issue) + '</a>';
 }
 
 function formatContributors(contributors) {
     var result = '';
     for (var i = 0; i < contributors.length; i++) {
-         result += '<img style="width: 24px; height: 24px" src="' + contributors[i]['avatarUrls']['48x48'] + '" title="' +  contributors[i].displayName + '"/>';
+         result += '<img style="width: 24px; height: 24px" src="' + contributors[i]['avatarUrls']['48x48'] + '" title="' +  escapeText(contributors[i].displayName) + '"/>';
     }
     return result;
 }
@@ -46,17 +46,17 @@ function formatProgress(progress) {
 */
 
     if (progress.spent <= progress.estimated) {
-        result += '<div title="' + text + '" style="height: 8px; width: 200px; background-color: #E0E0E0; "><div style="height: 8px; width: ' + percent + '%; background-color: #8080FF;"></div></div>'
+        result += '<div title="' + escapeText(text) + '" style="height: 8px; width: 200px; background-color: #E0E0E0; "><div style="height: 8px; width: ' + percent + '%; background-color: #8080FF;"></div></div>'
     } else {
 
-        result += '<div title="' + text + '" style="height: 8px; width: 200px; background-color: #FF6060; "><div style="height: 8px; width: ' + Math.round(100*100/percent) + '%; background-color: #8080FF;"></div></div>'
+        result += '<div title="' + escapeText(text) + '" style="height: 8px; width: 200px; background-color: #FF6060; "><div style="height: 8px; width: ' + Math.round(100*100/percent) + '%; background-color: #8080FF;"></div></div>'
     }
 
     return result;
 }
 
 function formatIssueSummary(issue) {
-    return '<a href="' + JIRA_URL + '/browse/' + issue.key + '">' + issue.key + '</a> '  + issue.fields.summary;
+    return '<a href="' + JIRA_URL + '/browse/' + escapeText(issue.key) + '">' + escapeText(issue.key) + '</a> ' + escapeText(issue.fields.summary);
 }
 
 function rowStyle(row, index) {
@@ -437,7 +437,7 @@ async function loadWorklog() {
     await authenticate();
 
     var issues = await searchIssues({
-        jql: "worklogDate > -5d AND worklogAuthor in membersOf('" + GROUP + "')",
+        jql: "worklogDate > -7d AND worklogAuthor in membersOf('" + GROUP + "')",
         fields: "summary,timespent,aggregatetimespent,timeestimate,timeoriginalestimate,aggregatetimeestimate,aggregatetimeoriginalestimate,worklog,status,parent"
     });
 
