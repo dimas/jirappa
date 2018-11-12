@@ -63,32 +63,14 @@ span.menu-details::after {
 <h2>Sprint planning</h2>
 
   <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#team-tab">Team capacity</a></li>
-    <li><a data-toggle="tab" href="#debt-tab">Carried debt</a></li>
+    <li class="active"><a data-toggle="tab" href="#debt-tab">Carried debt</a></li>
+    <li><a data-toggle="tab" href="#team-tab">Team capacity</a></li>
     <li><a data-toggle="tab" href="#plan-tab">Sprint plan</a></li>
   </ul>
 
   <div class="tab-content">
 
-    <div id="team-tab" class="tab-pane fade in active">
-
-<table id="developers" data-row-style="developerStatsRowStyle" class="table table-hover table-condensed" style="vertical-align: top" data-show-footer="true" data-footer-style="developersFooterStyle">
-  <thead>
-    <tr>
-      <th data-field="displayName" data-sortable="true"  data-footer-formatter="totalLabelFooterFormatter">Developer</th>
-      <th data-field="debt" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Debt</th>
-      <th data-field="capacity" data-formatter="formatDeveloperCapacity" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Capacity</th>
-      <th data-field="selected" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Selected</th>
-      <th data-field="available" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Available</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-
-    </div>
-
-    <div id="debt-tab" class="tab-pane fade">
+    <div id="debt-tab" class="tab-pane fade in active">
 
 <h3>Debt carried over - active sprint</h3>
 <table id="debt" class="table table-hover table-condensed" style="vertical-align: top">
@@ -107,6 +89,25 @@ span.menu-details::after {
 </table>
 
     </div>
+
+    <div id="team-tab" class="tab-pane fade">
+
+<table id="developers" data-row-style="developerStatsRowStyle" class="table table-hover table-condensed" style="vertical-align: top" data-show-footer="true" data-footer-style="developersFooterStyle">
+  <thead>
+    <tr>
+      <th data-field="displayName" data-sortable="true"  data-footer-formatter="totalLabelFooterFormatter">Developer</th>
+      <th data-field="debt" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Debt</th>
+      <th data-field="capacity" data-formatter="formatDeveloperCapacity" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Capacity</th>
+      <th data-field="selected" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Selected</th>
+      <th data-field="available" data-formatter="formatDurationDays" data-sortable="true" data-footer-formatter="totalDurationFooterFormatter">Available</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+    </div>
+
     <div id="plan-tab" class="tab-pane fade">
 
 Select sprint: <select id="sprint-selector" size="1">

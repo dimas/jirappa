@@ -232,8 +232,7 @@ function updateDeveloperCapacity(key, value) {
         return;
     }
 
-    developersTableItems[index].capacity = parseDurationDays(value);
-    developersTableItems[index].update();
+    developersTableItems[index].setCapacity(parseDurationDays(value));
 
     $('#developers').bootstrapTable('updateRow', [
         {index: index, row: developersTableItems[index]},
@@ -308,18 +307,39 @@ function renderDevelopersTable() {
     var tableItems = [];
 
     for (var i = 0; i < teamMembers.length; i++) {
-      tableItems.push({
+      item = {
           developer: teamMembers[i],
           displayName: teamMembers[i].displayName,
           debt: 0,
           capacity: parseDuration('9d'),
           selected: 0,
-          update() { this.available = this.capacity - this.debt - this.selected; },
-      });
-    }
 
-    for (var i = 0; i < tableItems.length; i++) {
-        tableItems[i].update();
+          update() {
+              this.available = this.capacity - this.debt - this.selected;
+          },
+          setCapacity(value) {
+              this.capacity = value;
+              this.update();
+          },
+          setDebt(value) {
+              this.debt = value;
+              this.update();
+          },
+          addDebt(value) {
+              this.debt += value;
+              this.update();
+          },
+          setSelected(value) {
+              this.selected = value;
+              this.update();
+          },
+          addSelected(value) {
+              this.selected += value;
+              this.update();
+          },
+      };
+      item.update(); // init 'available'
+      tableItems.push(item);
     }
 
 developersTableItems = tableItems;
@@ -394,19 +414,15 @@ function recalculateDevelopersSelected() {
     console.log("recalculateDevelopersSelected()");
 
     for (var i = 0; i < developersTableItems.length; i++) {
-        developersTableItems[i].selected = 0;
+        developersTableItems[i].setSelected(0);
     }
 
     for (var i = 0; i < planTableItems.length; i++) {
         var item = planTableItems[i];
         var stats = getDeveloperStatsItem(item.selectedAssignee);
-        if (stats != null) {
-            stats.selected += item.timeProgress.estimated || 0;
+        if (stats != null && item.timeProgress.estimated > 0) {
+            stats.addSelected(item.timeProgress.estimated);
         }
-    }
-
-    for (var i = 0; i < developersTableItems.length; i++) {
-        developersTableItems[i].update();
     }
 }
 
@@ -689,19 +705,15 @@ var debtTableItems;
 function recalculateDevelopersDebt() {
 
     for (var i = 0; i < developersTableItems.length; i++) {
-        developersTableItems[i].debt = 0;
+        developersTableItems[i].setDebt(0);
     }
 
     for (var i = 0; i < debtTableItems.length; i++) {
         var item = debtTableItems[i];
         var stats = getDeveloperStatsItem(item.selectedAssignee);
         if (stats != null && item.debt > 0) {
-            stats.debt += item.debt;
+            stats.addDebt(item.debt);
         }
-    }
-
-    for (var i = 0; i < developersTableItems.length; i++) {
-        developersTableItems[i].update();
     }
 }
 
@@ -875,6 +887,8 @@ async function applyPlanAssignments() {
 
     promises = [];
 
+    log = '';
+
     for (var i = 0; i < planTableItems.length; i++) {
         // 'let' instead of 'var' is important here otherwise callbacks (async functions) will see the same value of 'item'
         let item = planTableItems[i];
@@ -887,13 +901,15 @@ async function applyPlanAssignments() {
             continue;
         }
 
-        console.log("reassign " + item.issue + " " + item.originalAssignee + " > " + assignee);
+        log += "reassign " + item.issue + " " + item.originalAssignee + " > " + assignee + "\n";
 
         promises.push(assignIssue(item.issue, assignee));
     }
 
     // Wait for all updates to complete
     await Promise.all(promises);
+
+    alert("Following changes applied:\n" + log);
 }
 
 async function loadAll() {
