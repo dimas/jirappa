@@ -1,38 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+ <meta charset="utf-8">
+
  <script src="js/jquery-3.2.1.min.js"></script>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
-<!-- Latest compiled and minified JavaScript -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
-<!-- Latest compiled and minified Locales -->
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
  <script src="lib/duration.js"></script>
  <script src="lib/misc.js"></script>
  <script src="lib/config.js"></script>
  <script src="lib/jira.js"></script>
  <script src="lib/jira-report.js"></script>
+ <script src="lib/standup.js"></script>
 
  <style>
 
-.date {
-vertical-align: top
-}
-
-.odd {
-    background-color: #F0F0F0;
+/* Even though there is no table-hover class on the table, the hover still occurs so disable it explicitly */
+.table-hover tbody tr:hover {
+background-color: transparent;
 }
 
 </style>
-
 </head>
-<html>
+
+<body>
 
 <h3>Worklog</h3>
-<button onclick="loadWorklog()">Load</button>
-<table id="worklog" data-row-style="rowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
+<table id="worklog" data-row-style="worklogRowStyle" class="table" style="vertical-align: top">
   <thead>
-    <tr class="danger">
+    <tr>
       <th data-field="date">Date</th>
       <th data-field="person">Developer</th>
       <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
@@ -45,6 +48,7 @@ vertical-align: top
   </tbody>
 </table>
 
+</body>
 <html>
 
 
