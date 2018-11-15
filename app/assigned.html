@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+
+ <script src="js/jquery-3.2.1.min.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<!--
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+-->
+
+
+ <script src="lib/duration.js"></script>
+ <script src="lib/misc.js"></script>
+ <script src="lib/config.js"></script>
+ <script src="lib/jira.js"></script>
+ <script src="lib/jira-report.js"></script>
+
+ <script src="lib/assigned.js"></script>
+
+ <style>
+
+.date {
+vertical-align: top
+}
+
+.odd {
+    background-color: #F0F0F0;
+}
+
+</style>
+</head>
+
+<body>
+
+
+<h3>Assigned ticket count</h3>
+<table id="states" class="table table-hover table-condensed" style="vertical-align: top" data-show-footer="true" data-footer-style="statesFooterStyle">
+  <thead>
+    <tr>
+      <th data-field="person" data-sortable="true" data-footer-formatter="totalLabelFooterFormatter">Person</th>
+      <th data-field="count" data-sortable="true" data-formatter="formatIssueCount" data-footer-formatter="sumFooterFormatter"></th>
+      <th data-field="total" data-sortable="true" data-footer-formatter="sumFooterFormatter" data-cell-style="totalCellStyle" style="font-weight: bold">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<!-- Modal -->
+<!-- https://github.com/twbs/bootstrap/issues/4663 -->
+<div id="myModal" class="modal fade" role="dialog" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Issue details</h4>
+      </div>
+      <div class="modal-body">
+
+<table id="details" class="table table-hover table-condensed" style="vertical-align: top">
+  <thead>
+    <tr>
+      <th data-field="issue" data-sortable="true" data-sorter="issueKeySorter" data-formatter="formatIssueKey">Issue</th>
+      <th data-field="status" data-sortable="true">Status</th>
+      <th data-field="issueSummary" data-sortable="true">Summary</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

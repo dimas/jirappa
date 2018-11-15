@@ -102,6 +102,12 @@ function timeRemainCellStyle(value, row, index) {
         return { css: {"vertical-align" : "top"} };
     }
 }
+
+function issueKeySorter(a, b) {
+    return compareJiraKey(a, b);
+}
+
+
 function compareJiraKey(a, b) {
     var re = /^([a-z0-9]+)-(\d+)$/i;
     var am = re.exec(a);
