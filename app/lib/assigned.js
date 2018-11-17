@@ -51,7 +51,7 @@ var detailsTable;
 function showDetails(person, status) {
     person = peopleData[person];
 
-    var issues = person.issues.filter(function(i) { return i.status == status; });
+    var issues = person.issues.filter(function(i) { return issueStatusCode(i.status) == status; });
 
     detailsTable.bootstrapTable('load', issues);
 
@@ -65,8 +65,7 @@ function initDetailsTable() {
 }
 
 var statesTable;
-var columnsTemplate;
-var templateColumnIndex;
+
 var peopleData;
 
 function initStatesTable() {
@@ -74,19 +73,19 @@ function initStatesTable() {
     statesTable.bootstrapTable({
     });
 
-    // Not sure why 'columns' is multi-dimensionalarray but...
-    columnsTemplate = statesTable.bootstrapTable('getOptions').columns[0];
-
-    for (var i = 0; i < columnsTemplate.length; i++) {
-        if (columnsTemplate[i].field == "count"){
-            templateColumnIndex = i;
-        }
-    }
-
     statesTable.on("click", "a", function(event) {
         event.preventDefault();
         showDetails($(event.target).attr("person"), $(event.target).attr("status"));
     });
+}
+
+function issueStatusCode(status) {
+    var status = status.replace(' ', '');
+    if (status == 'Closed' || status == 'InTest' || status == 'InReview') {
+        return status;
+    } else {
+        return 'Other';
+    }
 }
 
 function renderStatesTable(issues) {
@@ -130,8 +129,9 @@ function renderStatesTable(issues) {
         var total = 0;
         for (j = 0; j < personData.issues.length; j++) {
             var issue = personData.issues[j];
-            counts[issue.status] |= 0;
-            counts[issue.status] += 1;
+            var status = issueStatusCode(issue.status);
+            counts[status] |= 0;
+            counts[status] += 1;
             total++;
         }
 
@@ -143,28 +143,8 @@ function renderStatesTable(issues) {
 
     }
 
-    cols = [];
-    add(cols, columnsTemplate);
-
-    templateColumn = columnsTemplate[templateColumnIndex];
-    cols.splice(templateColumnIndex, 1);
-
-    for (i = 0; i < states.length; i++) {
-        // clone template column
-        column = $.extend(true, {}, templateColumn);
-        // update copy
-        column.field = "counts." + states[i];
-        column.title = states[i];
-
-        cols.splice(templateColumnIndex++, 0, column);
-    }
-
     peopleData = data;
-
-    statesTable.bootstrapTable('destroy').bootstrapTable({
-        columns: cols,
-        data: tableItems
-    });
+    statesTable.bootstrapTable('load', tableItems);
 }
 
 function processStatesIssues(issues) {
@@ -194,8 +174,16 @@ $(function () {
     initStatesTable();
 
     loadStates();
-
-//    processStatesIssues([{fields: {assignee: 'a person', status: {name: 'a status'}}}]);
-
+/*
+    // Here is some test data (comment out call to loadStates() when uncommenting this)
+    processStatesIssues([
+        {key: 'ISSUE-1', fields: {summary: 'The one that is closed', assignee: {displayName: 'Sarah Smith'}, status: {name: 'Closed'}}},
+        {key: 'ISSUE-2', fields: {summary: 'The one that is open', assignee: {displayName: 'Bob Reckless'}, status: {name: 'Open'}}},
+        {key: 'ISSUE-3', fields: {summary: 'The blocked one', assignee: {displayName: 'Bob Reckless'}, status: {name: 'Blocked'}}},
+        {key: 'ISSUE-4', fields: {summary: 'In review forever', assignee: {displayName: 'Percy Glasses'}, status: {name: 'In Review'}}},
+        {key: 'ISSUE-5', fields: {summary: 'Analysis required', assignee: {displayName: 'Kim Goodenough'}, status: {name: 'In Analysis'}}},
+        {key: 'ISSUE-6', fields: {summary: 'To be verified', assignee: {displayName: 'Jay Careful'}, status: {name: 'In Test'}}},
+    ]);
+*/
 });
 
