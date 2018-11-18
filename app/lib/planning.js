@@ -5,40 +5,19 @@ function getDeveloperDisplayName(personKey) {
     return name ? name : '';
 }
 
-function formatAssigneeSelector(assignee, row, index) {
+function formatAssigneeSelector(value, row, index) {
     // Generate an empty dropdown menu. It has 'dropdown-menu' <ul> element but no items in it.
     // We dynamically populate these menus on click in generateAssigneeDropdownItems()
     // TODO: need to improve overuse of 'style' with classes...
     return '' +
         '  <div class="dropdown" data-type="assignee" issue-key="' + escapeText(row.issue) + '">' +
         '    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width: 100%; display: table">' +
-        '      <span data-type="active" style="display: table-cell; width: 100%; text-align: left">' + escapeText(getDeveloperDisplayName(row.selectedAssignee)) + '</span>' +
+        '      <span data-type="active" style="display: table-cell; width: 100%; text-align: left">' + escapeText(getDeveloperDisplayName(value)) + '</span>' +
         '      <span style="display: table-cell; padding-left: 10px"><span class="caret"></span></span>' +
         '    </button>' +
         '    <ul class="dropdown-menu dropdown-menu-right">'+
         '    </ul>' +
         '  </div>';
-}
-
-PRIORITY_ORDER = [
-    "Un-Prioritized",
-    "Trivial",
-    "Minor",
-    "Major",
-    "Critical",
-    "Blocker",
-]
-
-function getPriorityOrder(priorityName) {
-    return PRIORITY_ORDER.indexOf(priorityName);
-}
-
-function formatIssuePriority(priority) {
-    return '<img style="width: 16px; height: 16px" src="' + priority.iconUrl + '" title="' +  escapeText(priority.name) + '"/>';
-}
-
-function issuePrioritySorter(a, b) {
-    return compare(getPriorityOrder(a.name), getPriorityOrder(b.name));
 }
 
 // Issue comparator that orders subtickets based on their parents order.
@@ -212,7 +191,7 @@ function totalDurationFooterFormatter(data) {
 
     var total = data.reduce(
         function(sum, row) {
-            return (sum) + (parseInt(row[field], 10) || 0);
+            return sum + (row[field] || 0);
         },
         0);
 
@@ -234,7 +213,7 @@ function updateDeveloperCapacity(key, value) {
 
     developersTableItems[index].setCapacity(parseDurationDays(value));
 
-    $('#developers').bootstrapTable('updateRow', [
+    developersTable.bootstrapTable('updateRow', [
         {index: index, row: developersTableItems[index]},
     ]);
 }
@@ -248,7 +227,7 @@ function refreshDeveloperStatsTable() {
         updates.push({index: i, row: developersTableItems[i]});
     }
 
-    $('#developers').bootstrapTable('updateRow', updates);
+    developersTable.bootstrapTable('updateRow', updates);
 }
 
 function getDeveloperStatsItemIndex(key) {
@@ -290,12 +269,12 @@ function calculateAvailable(item) {
 }
 
 function initDevelopersTable() {
-    table = $('#developers');
-    table.bootstrapTable({
+    developersTable = $('#developers');
+    developersTable.bootstrapTable({
 //        data: tableItems
     });
 
-    table.on("change", "input[data-type=capacity]", function(event) {
+    developersTable.on("change", "input[data-type=capacity]", function(event) {
         event.preventDefault();
         var input = $(event.target);
         updateDeveloperCapacity(input.attr('person-key'), input.val());
@@ -344,7 +323,7 @@ function renderDevelopersTable() {
 
 developersTableItems = tableItems;
 
-    $('#developers').bootstrapTable('load', tableItems);
+    developersTable.bootstrapTable('load', tableItems);
 }
 
 function processUserIssues(issues) {
@@ -378,7 +357,7 @@ function isTeamMember(key) {
 
 async function loadTeamMembers() {
 
-    $('#developers').bootstrapTable('showLoading');
+    developersTable.bootstrapTable('showLoading');
 
     await authenticate();
 
@@ -401,7 +380,7 @@ async function loadTeamMembers() {
 
     processUserIssues(issues);
 
-    $('#developers').bootstrapTable('hideLoading');
+    developersTable.bootstrapTable('hideLoading');
 }
 
 
@@ -427,9 +406,9 @@ function recalculateDevelopersSelected() {
 }
 
 
-function updateAssignment(issueKey, developerKey) {
+function updatePlanAssignment(issueKey, developerKey) {
 
-    console.log("updateAssignment(" + issueKey + ", " + developerKey + ")");
+    console.log("updatePlanAssignment(" + issueKey + ", " + developerKey + ")");
 
     var teamMember = isTeamMember(developerKey);
     var unassignment = nullifyAssignee(developerKey) == null;
@@ -475,38 +454,38 @@ function updateAssignment(issueKey, developerKey) {
         return;
     }
 
-    $('#plan').bootstrapTable('updateRow', updates);
+    planTable.bootstrapTable('updateRow', updates);
 
     recalculateDevelopersSelected();
     refreshDeveloperStatsTable();
 }
 
 function initPlanTable() {
-    table = $('#plan');
-    table.bootstrapTable({
+    planTable = $('#plan');
+    planTable.bootstrapTable({
         // cannot set data-custom-sort in HTML, see https://github.com/wenzhixin/bootstrap-table/issues/2545 for details
         // (the issue is about customSearch which had similar problem but unlike customSort it was fixed)
         customSort: nestedIssueTableSorter
     });
 
-    table.on("click", "div.dropdown[data-type=assignee] > ul.dropdown-menu > li", function(event) {
+    planTable.on("click", "div.dropdown[data-type=assignee] > ul.dropdown-menu > li", function(event) {
         event.preventDefault();
         var dropdown = $(event.target).closest("div.dropdown");
         var item = $(event.target).closest("li");
         var issueKey = dropdown.attr("issue-key");
         var personKey = item.attr("person-key");
 
-        // Technically there is no need to update the selected (active) text in the dropdown because updateAssignment will
+        // Technically there is no need to update the selected (active) text in the dropdown because updatePlanAssignment will
         // cause table to be re-rendered and formatter re-applied to assignment cells so getDeveloperDisplayName() will update the text.
         // But lets do it anyways for completeness so code can be copied to other places easier.
         dropdown.find("span[data-type=active]").text(getDeveloperDisplayName(personKey));
 
-        updateAssignment(issueKey, personKey);
+        updatePlanAssignment(issueKey, personKey);
     });
 
     // Given there is `show.bs.dropdown` event, listening `click` seems to be hacky.
     // However when I tried modifying <ul>'s HTML on `show.bs.dropdown`, it did not work and no popup was shown...
-    table.on("click", "div.dropdown[data-type=assignee]", function(event) {
+    planTable.on("click", "div.dropdown[data-type=assignee]", function(event) {
         event.preventDefault();
         var dropdown = $(event.target).closest("div.dropdown");
         var list = dropdown.find("ul.dropdown-menu");
@@ -514,7 +493,7 @@ function initPlanTable() {
 
         var row = getPlanIssue(issueKey);
         if (row != null) {
-            list.html(generateAssigneeDropdownItems(row));
+            list.html(generateAssigneeDropdownItems(row, true));
         }
     });
 }
@@ -612,7 +591,7 @@ function processSprintIssues(issues) {
 
     planTableItems = tableItems;
 
-    $('#plan').bootstrapTable('load', tableItems);
+    planTable.bootstrapTable('load', tableItems);
 
     recalculateDevelopersSelected();
     refreshDeveloperStatsTable();
@@ -647,7 +626,7 @@ function generateAssigneeMenuItem(personKey, active, textHtml,detailsHtml) {
     return html;
 }
 
-function generateAssigneeDropdownItems(row) {
+function generateAssigneeDropdownItems(row, showTimeAvailable) {
 
     const divider = '<li class="divider"></li>';
 
@@ -661,7 +640,7 @@ function generateAssigneeDropdownItems(row) {
       html += generateAssigneeMenuItem(teamMembers[i].key,
                                        row.selectedAssignee == teamMembers[i].key,
                                        escapeText(teamMembers[i].displayName),
-                                       stats != null ? formatDurationDays(stats.available) : null);
+                                       (showTimeAvailable && stats != null) ? formatDurationDays(stats.available) : null);
     }
 
     // If ticket's original assignee is not in our team, we still need make that person available in the dropdown for this ticket
@@ -678,7 +657,7 @@ function generateAssigneeDropdownItems(row) {
 
 async function loadSprintPlan(id) {
 
-    $('#plan').bootstrapTable('showLoading');
+    planTable.bootstrapTable('showLoading');
 
     await authenticate();
 
@@ -689,7 +668,7 @@ async function loadSprintPlan(id) {
 
     processSprintIssues(issues);
 
-    $('#plan').bootstrapTable('hideLoading');
+    planTable.bootstrapTable('hideLoading');
 }
 
 ///////////////////////////////////////////////////////////////// DEBT
@@ -727,39 +706,61 @@ function getDebtItemIndex(issueKey) {
     return -1;
 }
 
+var debtTable;
+
 function updateIssueDebt(issueKey, value) {
     index = getDebtItemIndex(issueKey);
     debtTableItems[index].debt = parseDurationDays(value);
-    $('#debt').bootstrapTable('updateRow', [
+    debtTable.bootstrapTable('updateRow', [
         {index: index, row: debtTableItems[index]}
     ]);
     recalculateDevelopersDebt();
     refreshDeveloperStatsTable();
 }
 
-function updateDebtAssignment(issueKey, developerIndex) {
+function updateDebtAssignment(issueKey, developerKey) {
     index = getDebtItemIndex(issueKey);
-    debtTableItems[index].selectedAssignee = developerIndex;
+    debtTableItems[index].selectedAssignee = developerKey;
     recalculateDevelopersDebt();
     refreshDeveloperStatsTable();
 }
 
 function initDebtTable() {
-    table = $('#debt');
-    table.bootstrapTable({
+    debtTable = $('#debt');
+    debtTable.bootstrapTable({
 //        data: tableItems
     });
 
-    table.on("change", "input[data-type=debt]", function(event) {
+    debtTable.on("change", "input[data-type=debt]", function(event) {
         event.preventDefault();
         var input = $(event.target);
         updateIssueDebt(input.attr('issue-key'), input.val());
     });
 
-    table.on("change", "select[data-type=assignee]", function(event) {
+    debtTable.on("click", "div.dropdown[data-type=assignee] > ul.dropdown-menu > li", function(event) {
         event.preventDefault();
-        var input = $(event.target);
-        updateDebtAssignment(input.attr('issue-key'), input.val());
+        var dropdown = $(event.target).closest("div.dropdown");
+        var item = $(event.target).closest("li");
+        var issueKey = dropdown.attr("issue-key");
+        var personKey = item.attr("person-key");
+
+        dropdown.find("span[data-type=active]").text(getDeveloperDisplayName(personKey));
+
+        updateDebtAssignment(issueKey, personKey);
+    });
+
+    // Given there is `show.bs.dropdown` event, listening `click` seems to be hacky.
+    // However when I tried modifying <ul>'s HTML on `show.bs.dropdown`, it did not work and no popup was shown...
+    debtTable.on("click", "div.dropdown[data-type=assignee]", function(event) {
+        event.preventDefault();
+        var dropdown = $(event.target).closest("div.dropdown");
+        var list = dropdown.find("ul.dropdown-menu");
+        var issueKey = dropdown.attr("issue-key");
+
+        var row = getDebtIssue(issueKey);
+        if (row != null) {
+            list.html(generateAssigneeDropdownItems(row, false));
+        }
     });
 }
 
@@ -854,15 +855,25 @@ function processDebtIssues(issues) {
 
     debtTableItems = tableItems;
 
-    $('#debt').bootstrapTable('load', tableItems);
+    debtTable.bootstrapTable('load', tableItems);
 
     recalculateDevelopersDebt();
     refreshDeveloperStatsTable();
 }
 
+
+function getDebtIssue(issueKey) {
+    for (var i = 0; i < debtTableItems.length; i++) {
+        if (item = debtTableItems[i].issue == issueKey) {
+            return debtTableItems[i];
+        }
+    }
+    return null;
+}
+
 async function loadDebt() {
 
-    $('#debt').bootstrapTable('showLoading');
+    debtTable.bootstrapTable('showLoading');
 
     await authenticate();
 
@@ -873,7 +884,7 @@ async function loadDebt() {
 
     processDebtIssues(issues);
 
-    $('#debt').bootstrapTable('hideLoading');
+    debtTable.bootstrapTable('hideLoading');
 }
 
 

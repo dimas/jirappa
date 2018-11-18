@@ -1,11 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+
+  <meta charset="utf-8">
+
  <script src="js/jquery-3.2.1.min.js"></script>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
-<!-- Latest compiled and minified JavaScript -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
-<!-- Latest compiled and minified Locales -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<!--
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+-->
+
 
  <script src="lib/duration.js"></script>
  <script src="lib/misc.js"></script>
@@ -13,23 +25,17 @@
  <script src="lib/jira.js"></script>
  <script src="lib/jira-report.js"></script>
 
+ <script src="lib/retro.js"></script>
+
  <style>
-
-.date {
-vertical-align: top
-}
-
-.odd {
-    background-color: #F0F0F0;
-}
 
 </style>
 
 </head>
-<html>
+
+<body>
 
 <h3>Task progress</h3>
-<button onclick="loadProgress()">Load</button>
 <table id="progress" data-row-style="rowStyle" Xdata-classes="table-bordered" class="table table-bordered table-inverse" style="vertical-align: top">
   <thead>
     <tr class="danger">
@@ -45,6 +51,7 @@ vertical-align: top
   </tbody>
 </table>
 
-<html>
+</body>
+</html>
 
 

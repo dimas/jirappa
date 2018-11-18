@@ -109,6 +109,7 @@ function renderStatesTable(issues) {
         personData.issues.push({
             issue: issue.key,
             status: status,
+            issuePriority: {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl},
             issueSummary: issue.fields.summary,
         });
 
@@ -159,7 +160,7 @@ async function loadStates() {
 
     var issues = await searchIssues({
         jql: "assignee in membersOf('" + GROUP + "')",
-        fields: "summary,assignee,status,parent"
+        fields: "summary,assignee,status,priority"
     });
 
     processStatesIssues(issues);

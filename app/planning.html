@@ -21,7 +21,7 @@
  <script src="lib/planning.js"></script>
 
  <style>
-
+/*
 .date {
 vertical-align: top
 }
@@ -29,7 +29,7 @@ vertical-align: top
 .odd {
     background-color: #F0F0F0;
 }
-
+*/
 
 a.menu-item {
     overflow: auto;
@@ -79,7 +79,7 @@ span.menu-details::after {
       <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle">Issue</th>
       <th data-field="issueSummary" data-cell-style="issueCellStyle">Summary</th>
       <th data-field="issueStatus">Status</th>
-      <th data-field="assignee" data-formatter="formatAssigneeSelector">Assignee</th>
+      <th data-field="selectedAssignee" data-formatter="formatAssigneeSelector">Assignee</th>
       <th data-field="timeProgress" data-formatter="formatProgress">Progress</th>
       <th data-field="debt" data-formatter="formatIssueDebt">Remaining debt</th>
     </tr>
@@ -118,8 +118,8 @@ When assigmnent complete, <button onclick="applyPlanAssignments();">Save changes
 <table id="plan" class="table table-hover table-condensed" style="vertical-align: top" data-search="true">
   <thead>
     <tr>
-      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle" data-sortable="true">Issue</th>
-      <th data-field="issuePriority" data-month="1" data-sorter="issuePrioritySorter" data-formatter="formatIssuePriority" data-cell-style="issueCellStyle" data-sortable="true">Priority</th>
+      <th data-field="issue" data-formatter="formatIssueKey" data-cell-style="issueCellStyle" data-sortable="true" data-sorter="issueKeySorter">Issue</th>
+      <th data-field="issuePriority" data-sorter="issuePrioritySorter" data-formatter="formatIssuePriority" data-cell-style="issueCellStyle" data-sortable="true">Priority</th>
       <th data-field="issueSummary" data-cell-style="issueCellStyle" data-sortable="true">Summary</th>
       <th data-field="issueStatus" data-sortable="true">Status</th>
       <th data-field="timeProgress.estimated" data-formatter="formatDuration" data-sortable="true">Estimate</th>
