@@ -20,14 +20,6 @@ function statesFooterStyle(value, row, index) {
 }
 
 function totalCellStyle(value, row, index) {
-    // Despite this function is only assigned to the "total" column, the third column of the table (whatever status ends up there) gets it applied too.
-    // I believe this is because "total" is the third column in the original table so bootstrap somehow binds these functions even before
-    // we invoke destroy() and reload the table.
-    // Because of that - do not allow this style to be applied to wrong columns
-    if (this.field != 'total') {
-        return {};
-    }
-
     return { css: {"text-align": "right"} };
 }
 
@@ -51,7 +43,12 @@ var detailsTable;
 function showDetails(person, status) {
     person = peopleData[person];
 
-    var issues = person.issues.filter(function(i) { return issueStatusCode(i.status) == status; });
+    var issues;
+    if (status == 'total') {
+        issues = person.issues;
+    } else {
+        issues = person.issues.filter(function(i) { return issueStatusCode(i.status) == status; });
+    }
 
     detailsTable.bootstrapTable('load', issues);
 
