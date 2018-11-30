@@ -5,12 +5,15 @@ function totalLabelFooterFormatter(data) {
 
 function sumFooterFormatter(data) {
     var field = this.field;
+    status = this.field.replace(/^counts\./, '');
 
-    return data.reduce(
+    var total = data.reduce(
         function(sum, row) {
             return (sum) + (getField(row, field) || 0);
         },
         0);
+
+    return '<a href="#" data-type="issue-count" status="' + escapeText(status) + '">' + total + '</a>';
 }
 
 function statesFooterStyle(value, row, index) {
@@ -25,7 +28,7 @@ function totalCellStyle(value, row, index) {
 
 function formatIssueCount(value, row, index) {
     status = this.field.replace(/^counts\./, '');
-    return '<a href="#" person="' + escapeText(row.person) + '" + status="' + escapeText(status) + '">' + escapeText(value) + '</a>';
+    return '<a href="#" data-type="issue-count" person="' + escapeText(row.person) + '" status="' + escapeText(status) + '">' + escapeText(value) + '</a>';
 }
 
 // Extractor gets value for a field.
@@ -41,13 +44,14 @@ function getField(item, field) {
 var detailsTable;
 
 function showDetails(person, status) {
-    person = peopleData[person];
+    var issues = issuesData;
 
-    var issues;
-    if (status == 'total') {
-        issues = person.issues;
-    } else {
-        issues = person.issues.filter(function(i) { return issueStatusCode(i.status) == status; });
+    if (person) {
+        issues = issues.filter(function(i) { return i.assignee == person; });
+    }
+
+    if (status != 'total') {
+        issues = issues.filter(function(i) { return issueStatusCode(i.status) == status; });
     }
 
     detailsTable.bootstrapTable('load', issues);
@@ -65,15 +69,21 @@ var statesTable;
 
 var peopleData;
 
+var issuesData;
+
 function initStatesTable() {
     statesTable = $('#states');
     statesTable.bootstrapTable({
     });
 
-    statesTable.on("click", "a", function(event) {
+    // Apparently, the footer is not part of the table - it is not a normal <tr> there
+    // but is sitting in a completely different <div> and a separate table there.
+    // So go a couple parents up in order to bind an event to both table cells and footer cells
+    $(statesTable).parent().parent().on("click", "a[data-type=issue-count]", function(event) {
         event.preventDefault();
         showDetails($(event.target).attr("person"), $(event.target).attr("status"));
     });
+
 }
 
 function issueStatusCode(status) {
@@ -87,8 +97,9 @@ function issueStatusCode(status) {
 
 function renderStatesTable(issues) {
 
-    var states = {};
     var data = {};
+
+    issuesData = [];
 
     for (i = 0; i < issues.length; i++) {
         var issue = issues[i];
@@ -99,21 +110,24 @@ function renderStatesTable(issues) {
         if (personData == null) {
             personData = data[person] = { 
                 person: person,
-                issues: [],
+                statusCount: {},
+                totalCount: 0,
             };
         }
 
-        personData.issues.push({
+        var statusCode = issueStatusCode(status);
+        personData.statusCount[statusCode] |= 0;
+        personData.statusCount[statusCode] += 1;
+        personData.totalCount++;
+
+        issuesData.push({
             issue: issue.key,
             status: status,
+            assignee: person,
             issuePriority: {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl},
             issueSummary: issue.fields.summary,
         });
-
-        states[status] = true;
     }
-
-    states = Object.keys(states).sort();
 
     var tableItems = [];
 
@@ -123,20 +137,10 @@ function renderStatesTable(issues) {
 
         var personData = data[person];
 
-        var counts = {};
-        var total = 0;
-        for (j = 0; j < personData.issues.length; j++) {
-            var issue = personData.issues[j];
-            var status = issueStatusCode(issue.status);
-            counts[status] |= 0;
-            counts[status] += 1;
-            total++;
-        }
-
         tableItems.push({
                 person: personData.person,
-                counts: counts,
-                total: total,
+                counts: personData.statusCount,
+                total: personData.totalCount,
         });
 
     }

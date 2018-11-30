@@ -29,12 +29,8 @@
 
  <style>
 
-.date {
-vertical-align: top
-}
-
-.odd {
-    background-color: #F0F0F0;
+td.nowrap {
+    white-space:nowrap;
 }
 
 </style>
@@ -77,8 +73,9 @@ vertical-align: top
   <thead>
     <tr>
       <th data-field="issue" data-sortable="true" data-sorter="issueKeySorter" data-formatter="formatIssueKey">Issue</th>
-      <th data-field="issuePriority" data-sortable="true" data-sorter="issuePrioritySorter" data-formatter="formatIssuePriority">Priority</th>
-      <th data-field="status" data-sortable="true">Status</th>
+      <th data-field="assignee" data-sortable="true" class="nowrap">Assignee</th>
+      <th data-field="issuePriority" data-sortable="true" data-sorter="issuePrioritySorter" data-formatter="formatIssuePriority">P</th>
+      <th data-field="status" data-sortable="true" class="nowrap">Status</th>
       <th data-field="issueSummary" data-sortable="true">Summary</th>
     </tr>
   </thead>
