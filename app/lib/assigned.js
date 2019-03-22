@@ -124,7 +124,7 @@ function renderStatesTable(issues) {
             issue: issue.key,
             status: status,
             assignee: person,
-            issuePriority: {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl},
+            issuePriority: issue.fields.priority ? {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl} : null,
             issueSummary: issue.fields.summary,
         });
     }

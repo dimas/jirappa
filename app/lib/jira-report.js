@@ -13,6 +13,10 @@ function getPriorityOrder(priorityName) {
 }
 
 function formatIssuePriority(priority) {
+    if (priority == null) {
+        return '';
+    }
+
     return '<img style="width: 16px; height: 16px" src="' + priority.iconUrl + '" title="' +  escapeText(priority.name) + '"/>';
 }
 
