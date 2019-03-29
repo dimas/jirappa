@@ -88,7 +88,7 @@ function initStatesTable() {
 
 function issueStatusCode(status) {
     var status = status.replace(' ', '');
-    if (status == 'InProgress' || status == 'Closed' || status == 'InTest' || status == 'InReview') {
+    if (status == 'InProgress' || status == 'Closed' || status == 'InTest' || status == 'InReview' || status == 'Blocked') {
         return status;
     } else {
         return 'Other';
