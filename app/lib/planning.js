@@ -399,8 +399,8 @@ function recalculateDevelopersSelected() {
     for (var i = 0; i < planTableItems.length; i++) {
         var item = planTableItems[i];
         var stats = getDeveloperStatsItem(item.selectedAssignee);
-        if (stats != null && item.timeProgress.estimated > 0) {
-            stats.addSelected(item.timeProgress.estimated);
+        if (stats != null && item.timeProgress.left > 0) {
+            stats.addSelected(item.timeProgress.left);
         }
     }
 }
@@ -419,7 +419,7 @@ function updatePlanAssignment(issueKey, developerKey) {
     for (var i = 0; i < planTableItems.length; i++) {
 
         // See if this particular developer is available for assignment to this particular ticket.
-        // Any team member can be assigned to any ticket but in addition to that tickets that were assigned to
+        // Any team member can be assigned to any ticket but in addition to that, tickets that were assigned to
         // people outside of the team initially can be assigned back to them - we keep the original assignee available in the dropdown.
         // Also we always can unassign.
         // So availableForAssignment effectively means that developerKey is present in the assignment dropdown for this ticket.
@@ -448,7 +448,7 @@ function updatePlanAssignment(issueKey, developerKey) {
     }
 
     // Stop here if there is there were no changes. I saw the change event firing multiple times
-    // and on the second one we were already at target state. It is not a huge deal but refreshing and rebuilding all thesetables
+    // and on the second one we were already at target state. It is not a huge deal but refreshing and rebuilding all these tables
     // can be easily avoided so why not do that?...
     if (updates.length == 0) {
         return;
@@ -536,6 +536,7 @@ function processSprintIssues(issues) {
         issueData.priority = {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl};
         issueData.timeEstimated = issue.fields.timeoriginalestimate;
         issueData.timeSpent = issue.fields.timespent;
+        issueData.timeLeft = issue.fields.timeestimate;
         if (issue.fields.assignee) {
             issueData.assignee = issue.fields.assignee.key;
         }
@@ -563,6 +564,7 @@ function processSprintIssues(issues) {
                     timeProgress: {
                       estimated: taskData.timeEstimated,
                       spent: taskData.timeSpent,
+                      left: taskData.timeLeft,
                     },
                 };
 
@@ -584,6 +586,7 @@ function processSprintIssues(issues) {
                         timeProgress: {
                           estimated: subtaskData.timeEstimated,
                           spent: subtaskData.timeSpent,
+                          left: subtaskData.timeLeft,
                         },
                     });
                 }
@@ -663,7 +666,7 @@ async function loadSprintPlan(id) {
 
     var issues = await searchIssues({
        jql: "Sprint=" + id + "",
-       fields: 'status,priority,summary,parent,assignee,timeoriginalestimate,timespent'
+       fields: 'status,priority,summary,parent,assignee,timeoriginalestimate,timespent,timeestimate'
     });
 
     processSprintIssues(issues);
