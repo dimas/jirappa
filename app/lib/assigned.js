@@ -26,6 +26,95 @@ function totalCellStyle(value, row, index) {
     return { css: {"text-align": "right"} };
 }
 
+// A separate cell style method for each of the count columns.
+// I wanted to have just one method that reads attributes from the column to know
+// what are warning/danger levels for this particular counter but it looks like data-cell-style function
+// does not receive data about column it is applied to... So here we go with bunch of identical methods
+// with different limits
+
+function countCellStyle_InProgress(value, row, index) {
+    return countCellStyle1(row.person, 'InProgress', {warn: {count: 5, age: 7}, danger: {count: 10, age: 14}});
+}
+
+function countCellStyle_InReview(value, row, index) {
+    return countCellStyle1(row.person, 'InReview', {warn: {count: 3, age: 2}, danger: {count: 5, age: 7}});
+}
+
+function countCellStyle_InTest(value, row, index) {
+    return countCellStyle1(row.person, 'InTest', {warn: {count: 3, age: 3}, danger: {count: 5, age: 14}});
+}
+
+function countCellStyle_Closed(value, row, index) {
+    return countCellStyle1(row.person, 'Closed', {warn: {count: 1}, danger: {count: 3, age: 5}});
+}
+
+function countCellStyle_Blocked(value, row, index) {
+    return countCellStyle1(row.person, 'Blocked', {warn: {count: 3, age: 7}, danger: {count: 5, age: 14}});
+}
+
+function countCellStyle_Other(value, row, index) {
+    return countCellStyle1(row.person, 'Other', {warn: {count: 10, age: 14}, danger: {count: 15, age: 30}});
+}
+
+// options is in this format {warn: {count: 3, age: 3}, danger: {count: 5, age: 14}}
+// where age is in days
+function countCellStyle1(person, status, options) {
+    var issues = filterIssues(person, status);
+    var result;
+
+    if (checkViolations(issues, options.danger)) {
+        result = "danger";
+    } else if (checkViolations(issues, options.warn)) {
+        result = "warning";
+    }
+
+    return { classes: result };
+}
+
+// condition = {count: 3, age: 3}
+function checkViolations(issues, condition) {
+    if (condition == null) {
+        return false;
+    }
+
+    var lastUpdated = oldestUpdate(issues);
+    var age = lastUpdated != null ? (new Date() - lastUpdated) / (1000 * 60 * 60 * 24) : null;
+
+    if (condition.count != null && issues.length >= condition.count) {
+        return true;
+    } else if (condition.age != null && age != null && age >= condition.age) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function oldestUpdate(issues) {
+    // TODO: replace with reduce()
+    var result = null;
+    for (i = 0; i < issues.length; i++) {
+        var issue = issues[i];
+        if (result == null || result > issue.lastUpdated) {
+            result = issue.lastUpdated;
+        }
+    }
+
+    return result;
+}
+
+function formatDate(value, row, index) {
+   // I cannot believe there are no normal date formatting methods and I need to either use additional libraries
+   // or do it manually...
+   //   https://stackoverflow.com/questions/3552461/how-to-format-a-javascript-date
+   // Neither there is string formatting or padding. My god, what a language.
+   return ''
+       + value.getFullYear().toString().padStart(4, '0')
+       + '-'
+       + (value.getMonth() + 1).toString().padStart(2, '0')
+       + '-'
+       + value.getDate().toString().padStart(2, '0');
+}
+
 function formatIssueCount(value, row, index) {
     status = this.field.replace(/^counts\./, '');
     return '<a href="#" data-type="issue-count" person="' + escapeText(row.person) + '" status="' + escapeText(status) + '">' + escapeText(value) + '</a>';
@@ -43,7 +132,7 @@ function getField(item, field) {
 
 var detailsTable;
 
-function showDetails(person, status) {
+function filterIssues(person, status) {
     var issues = issuesData;
 
     if (person) {
@@ -54,6 +143,11 @@ function showDetails(person, status) {
         issues = issues.filter(function(i) { return issueStatusCode(i.status) == status; });
     }
 
+    return issues;
+}
+
+function showDetails(person, status) {
+    var issues = filterIssues(person, status);
     detailsTable.bootstrapTable('load', issues);
 
     $("#myModal").modal({keyboard: true});
@@ -126,6 +220,7 @@ function renderStatesTable(issues) {
             assignee: person,
             issuePriority: issue.fields.priority ? {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl} : null,
             issueSummary: issue.fields.summary,
+            lastUpdated: new Date(issue.fields.updated),
         });
     }
 
@@ -161,7 +256,7 @@ async function loadStates() {
 
     var issues = await searchIssues({
         jql: "assignee in membersOf('" + GROUP + "')",
-        fields: "summary,assignee,status,priority"
+        fields: "summary,assignee,status,priority,updated"
     });
 
     processStatesIssues(issues);
