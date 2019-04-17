@@ -1,4 +1,12 @@
 
+function issueDateSorter(a, b) {
+    // Date object are naturally comparable but DataTable's builtin sorter does not even try and just converts
+    // the first value to string and tries to compare with the second. Given Date's toString() starts with day of the week
+    // ("Mon ...") the result of that sorting looks pretty random to people.
+    //     https://github.com/wenzhixin/bootstrap-table/blob/7b6a3342d5ac32735ed44318a66a8292ac2e0fa1/src/bootstrap-table.js#L1009-L1018
+    return compare(a, b);
+}
+
 function totalLabelFooterFormatter(data) {
     return 'TOTAL';
 }

@@ -40,7 +40,7 @@ td.nowrap {
 
 
 <h3>Assigned ticket count</h3>
-<table id="states" class="table table-hover table-condensed" style="vertical-align: top" data-show-footer="true" data-footer-style="statesFooterStyle">
+<table id="states" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true" data-show-footer="true" data-footer-style="statesFooterStyle">
   <thead>
     <tr>
       <th data-field="person" data-sortable="true" data-footer-formatter="totalLabelFooterFormatter">Person</th>
@@ -70,14 +70,14 @@ td.nowrap {
       </div>
       <div class="modal-body">
 
-<table id="details" class="table table-hover table-condensed" style="vertical-align: top">
+<table id="details" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true">
   <thead>
     <tr>
       <th data-field="issue" data-sortable="true" data-sorter="issueKeySorter" data-formatter="formatIssueKey">Issue</th>
       <th data-field="assignee" data-sortable="true" class="nowrap">Assignee</th>
       <th data-field="issuePriority" data-sortable="true" data-sorter="issuePrioritySorter" data-formatter="formatIssuePriority">P</th>
       <th data-field="status" data-sortable="true" class="nowrap">Status</th>
-      <th data-field="lastUpdated" data-sortable="true" data-formatter="formatDate" class="nowrap">Updated</th>
+      <th data-field="lastUpdated" data-sortable="true" data-formatter="formatDate" class="nowrap" data-sorter="issueDateSorter">Updated</th>
       <th data-field="issueSummary" data-sortable="true">Summary</th>
     </tr>
   </thead>
