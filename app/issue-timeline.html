@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+
+ <script src="js/jquery-3.2.1.min.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<!--
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+-->
+
+
+ <script src="lib/duration.js"></script>
+ <script src="lib/misc.js"></script>
+ <script src="lib/config.js"></script>
+ <script src="lib/jira.js"></script>
+ <script src="lib/jira-report.js"></script>
+
+ <script src="lib/issue-timeline.js"></script>
+
+ <style>
+
+td.nowrap {
+    white-space:nowrap;
+}
+
+</style>
+</head>
+
+<body>
+
+
+<h3>Issue timeline</h3>
+
+Ticket: <input id="issue" type="text" value="">
+<input type="button" onclick="loadIssue()" value="Load">
+
+<table id="timeline" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true">
+  <thead>
+    <tr>
+      <th data-field="timestamp" data-formatter="formatTimestamp">Time</th>
+      <th data-field="author">Author</th>
+      <th data-field="statusChange.from">From Status</th>
+      <th data-field="statusChange.to">To Status</th>
+      <th data-field="statusChange.assignee">Assignee</th>
+      <th data-field="worklog.timeSpent" data-formatter="formatDuration">Time Logged</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+</body>
+</html>
