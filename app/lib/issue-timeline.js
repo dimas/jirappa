@@ -11,9 +11,10 @@ function findChangeFor(items, field) {
 var STATE_TRANSITIONS = [
     { fromStatus: "In Progress", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer" },
     { fromStatus: "Open",        toStatus: "In Progress", actorRole: "developer", assigneeRole: "developer" },
-    { fromStatus: "In Test",     toStatus: "Closed",      actorRole: "developer" },
+    { fromStatus: "Reopened",    toStatus: "In Progress", actorRole: "developer", assigneeRole: "developer" },
     { fromStatus: "In Review",   toStatus: "In Progress", actorRole: "reviewer",  assigneeRole: "developer" },
     { fromStatus: "In Review",   toStatus: "In Test",     actorRole: "reviewer",  assigneeRole: "developer" },
+    { fromStatus: "In Test",     toStatus: "Closed",      actorRole: "developer" },
     { fromStatus: "In Progress", toStatus: "In Test",     actorRole: "reviewer" },
 ]
 
@@ -111,7 +112,8 @@ function processIssues(issues) {
                 timestamp: new Date(worklog.started),
                 author: worklog.author.key,
                 worklog: {
-                    timeSpent: worklog.timeSpentSeconds
+                    timeSpent: worklog.timeSpentSeconds,
+                    comment: worklog.comment
                 }
             });
     });
