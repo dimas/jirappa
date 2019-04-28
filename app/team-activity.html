@@ -25,7 +25,8 @@
  <script src="lib/jira.js"></script>
  <script src="lib/jira-report.js"></script>
 
- <script src="lib/issue-timeline.js"></script>
+ <script src="lib/jira-issue-activity.js"></script>
+ <script src="lib/team-activity.js"></script>
 
  <style>
 
@@ -38,22 +39,24 @@ td.nowrap {
 
 <body>
 
+<h3>Activity</h3>
 
-<h3>Issue timeline</h3>
-
-Ticket: <input id="issue" type="text" value="">
-<input type="button" onclick="loadIssue()" value="Load">
-
-<table id="timeline" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true">
+<table id="stats" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true">
   <thead>
     <tr>
-      <th data-field="timestamp" data-formatter="formatTimestamp">Time</th>
-      <th data-field="author">Author</th>
-      <th data-field="statusChange.from">From Status</th>
-      <th data-field="statusChange.to">To Status</th>
-      <th data-field="statusChange.assignee">Assignee</th>
-      <th data-field="worklog.timeSpent" data-formatter="formatDuration">Time Logged</th>
-      <th data-field="worklog.comment">Comment</th>
+      <th data-field="person" data-sortable="true">Person</th>
+      <th data-field="total.ticketCount" data-sortable="true">Total, #</th>
+      <th data-field="total.timeSpent" data-sortable="true" data-formatter="formatDuration">Total, Time</th>
+
+      <th data-field="development.ticketCount" data-sortable="true">Dev, #</th>
+      <th data-field="development.timeSpent" data-sortable="true" data-formatter="formatDuration">Dev, Time</th>
+
+      <th data-field="review.ticketCount" data-sortable="true">Review, #</th>
+      <th data-field="review.timeSpent" data-sortable="true" data-formatter="formatDuration">Review, Time</th>
+
+      <th data-field="testing.ticketCount" data-sortable="true">Test, #</th>
+      <th data-field="testing.timeSpent" data-sortable="true" data-formatter="formatDuration">Test, Time</th>
+
     </tr>
   </thead>
   <tbody>
