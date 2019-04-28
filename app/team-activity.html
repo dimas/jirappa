@@ -45,6 +45,12 @@ td.nowrap {
   <thead>
     <tr>
       <th data-field="person" data-sortable="true">Person</th>
+
+      <th data-field="total" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Total</th>
+      <th data-field="development" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Development</th>
+      <th data-field="review" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Review</th>
+      <th data-field="testing" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Testing</th>
+<!--
       <th data-field="total.ticketCount" data-sortable="true">Total, #</th>
       <th data-field="total.timeSpent" data-sortable="true" data-formatter="formatDuration">Total, Time</th>
 
@@ -56,12 +62,49 @@ td.nowrap {
 
       <th data-field="testing.ticketCount" data-sortable="true">Test, #</th>
       <th data-field="testing.timeSpent" data-sortable="true" data-formatter="formatDuration">Test, Time</th>
-
+-->
     </tr>
   </thead>
   <tbody>
   </tbody>
 </table>
+
+<!-- Modal -->
+<!-- https://github.com/twbs/bootstrap/issues/4663 -->
+<div id="myModal" class="modal fade" role="dialog" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Issue details</h4>
+      </div>
+      <div class="modal-body">
+
+<table id="details" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true">
+  <thead>
+    <tr>
+      <th data-field="issue.key" data-sortable="true" data-sorter="issueKeySorter" data-formatter="formatIssueKey">Issue</th>
+      <th data-field="issue.fields.summary" data-sortable="true">Summary</th>
+      <th data-field="development" data-sortable="true" data-formatter="formatPresentDuration">Development</th>
+      <th data-field="review" data-sortable="true" data-formatter="formatPresentDuration">Review</th>
+      <th data-field="testing" data-sortable="true" data-formatter="formatPresentDuration">Testing</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 
 </body>
 </html>
