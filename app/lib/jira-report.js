@@ -74,6 +74,14 @@ function formatIssueSummary(issue) {
     return '<a target="_blank" href="' + JIRA_URL + '/browse/' + escapeText(issue.key) + '">' + escapeText(issue.key) + '</a> ' + escapeText(issue.fields.summary);
 }
 
+function formatDate(value) {
+    return isoDate(value);
+}
+
+function formatTimestamp(value) {
+    return isoDate(value) + ' ' + isoTime(value);
+}
+
 function issueCellStyle(value, row, index) {
     if (row.parentIssue) {
         return {

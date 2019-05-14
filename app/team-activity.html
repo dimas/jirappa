@@ -41,6 +41,12 @@ td.nowrap {
 
 <h3>Activity</h3>
 
+Show activity for the last <select id="interval" onchange="selectInterval()" size="1">
+<option value="14">Last 2 weeks</option>
+<option value="7">Last week</option>
+<option value="1">Last 24 hours</option>
+</select>
+
 <table id="stats" class="table table-hover table-condensed" style="vertical-align: top" data-escape="true">
   <thead>
     <tr>
@@ -50,19 +56,7 @@ td.nowrap {
       <th data-field="development" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Development</th>
       <th data-field="review" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Review</th>
       <th data-field="testing" data-sortable="true" data-formatter="formatActivity" data-sorter="activitySorter">Testing</th>
-<!--
-      <th data-field="total.ticketCount" data-sortable="true">Total, #</th>
-      <th data-field="total.timeSpent" data-sortable="true" data-formatter="formatDuration">Total, Time</th>
 
-      <th data-field="development.ticketCount" data-sortable="true">Dev, #</th>
-      <th data-field="development.timeSpent" data-sortable="true" data-formatter="formatDuration">Dev, Time</th>
-
-      <th data-field="review.ticketCount" data-sortable="true">Review, #</th>
-      <th data-field="review.timeSpent" data-sortable="true" data-formatter="formatDuration">Review, Time</th>
-
-      <th data-field="testing.ticketCount" data-sortable="true">Test, #</th>
-      <th data-field="testing.timeSpent" data-sortable="true" data-formatter="formatDuration">Test, Time</th>
--->
     </tr>
   </thead>
   <tbody>

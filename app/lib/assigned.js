@@ -110,19 +110,6 @@ function oldestUpdate(issues) {
     return result;
 }
 
-function formatDate(value, row, index) {
-   // I cannot believe there are no normal date formatting methods and I need to either use additional libraries
-   // or do it manually...
-   //   https://stackoverflow.com/questions/3552461/how-to-format-a-javascript-date
-   // Neither there is string formatting or padding. My god, what a language.
-   return ''
-       + value.getFullYear().toString().padStart(4, '0')
-       + '-'
-       + (value.getMonth() + 1).toString().padStart(2, '0')
-       + '-'
-       + value.getDate().toString().padStart(2, '0');
-}
-
 function formatIssueCount(value, row, index) {
     status = this.field.replace(/^counts\./, '');
     return '<a href="#" data-type="issue-count" person="' + escapeText(row.person) + '" status="' + escapeText(status) + '">' + escapeText(value) + '</a>';

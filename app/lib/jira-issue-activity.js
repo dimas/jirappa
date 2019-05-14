@@ -9,6 +9,7 @@ function findChangeFor(items, field) {
 }
 
 var STATE_TRANSITIONS = [
+    { fromStatus: "In Analysis", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer"  },
     { fromStatus: "In Progress", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer"  },
     { fromStatus: "Open",        toStatus: "In Progress", actorRole: "developer", assigneeRole: "developer" },
     { fromStatus: "Reopened",    toStatus: "In Progress", actorRole: "developer", assigneeRole: "developer" },
@@ -62,8 +63,6 @@ function workPerPerson(worklogs) {
         }
         result[personKey] += worklog.timeSpentSeconds;
 
-//console.log("" + personKey + " : " + worklog.timeSpentSeconds);
-
     });
 
     return result;
@@ -89,7 +88,14 @@ function mostFrequent(items) {
     return bestValue;
 }
 
-function analyzeActivity(issue) {
+// Analyse activity in the ticket, figure out roles of the people participated and produce a work report.
+// Returns an object containing
+//   * issue - the JIRA issue itself
+//   * timeline - ordered list of status changes and worklog items submitted
+//   * work - total amount of work for each activity logged by each person.
+// Note that if startTime/endTime is passed, they will only affect the "work" reported by only inclusing
+// the work items within these bounds. Timeline will still be reported in full.
+function analyzeActivity(issue, startTime, endTime) {
 
     var timeline = [];
 
@@ -156,6 +162,11 @@ function analyzeActivity(issue) {
             lastStatus = currentStatus;
             currentStatus = entry.statusChange.to;
         } else if (entry.worklog) {
+
+            // Do not include work outside of the selected window
+            if ((startTime && startTime > entry.timestamp) || (endTime && endTime < entry.timestamp)) {
+                return;
+            }
 
             var personData = personWork[entry.author];
             if (!personData) {

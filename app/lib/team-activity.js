@@ -12,7 +12,7 @@ function formatActivity(value, row, index) {
         return '';
     }
 
-    return '<a href="#" data-type="issue-count" person="' + escapeText(row.person) + '" activity="' + this.field + '">' + escapeText(value.ticketCount) + '</a>' + " / " + formatDuration(value.timeSpent);
+    return formatDuration(value.timeSpent) + ' (<a href="#" data-type="issue-count" person="' + escapeText(row.person) + '" activity="' + this.field + '">' + escapeText(value.ticketCount) + '</a>)';
 }
 
 function addWork(item, timeSpent) {
@@ -29,7 +29,7 @@ function processIssues(issues) {
     var peopleData = {};
 
     issues.forEach(function(issue) {
-        var activity = analyzeActivity(issue);
+        var activity = analyzeActivity(issue, startTime, endTime);
         activities.push(activity);
         activity.work.forEach(function(work) {
             var personData = peopleData[work.person];
@@ -73,6 +73,9 @@ function processIssues(issues) {
 // https://docs.atlassian.com/jira/REST/latest/
 
 
+var startTime = null;
+var endTime = null;
+
 async function loadIssues() {
 
     statsTable.bootstrapTable('showLoading');
@@ -80,7 +83,7 @@ async function loadIssues() {
     await authenticate();
 
     var issues = await searchIssues({
-        jql: "project ='" + PROJECT + "' AND sprint in openSprints() and issuetype not in subtaskIssueTypes()",
+        jql: "worklogDate >= '" + isoDate(startTime) + "' AND worklogAuthor in membersOf('" + GROUP + "')",
         fields: "summary,assignee,status,priority,updated,worklog,aggregatetimeoriginalestimate,aggregatetimespent",
         expand: "changelog",
     });
@@ -131,6 +134,17 @@ function showDetails(person, role) {
     $("#myModal").modal({keyboard: true});
 }
 
+function selectInterval() {
+
+    var days = parseInt($('#interval').val(), 10);
+
+    endTime = new Date();
+    startTime = new Date(endTime.valueOf());
+    startTime.setDate(startTime.getDate() - days);
+
+    loadIssues();
+}
+
 var statsTable;
 
 function initStatsTable() {
@@ -154,12 +168,12 @@ function initDetailsTable() {
 }
 
 
-
 // Init tables and load data
 $(function () {
+
     initStatsTable();
     initDetailsTable();
 
-    loadIssues();
+    selectInterval();
 });
 

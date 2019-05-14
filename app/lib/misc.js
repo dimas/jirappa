@@ -61,3 +61,36 @@ function escapeText(text) {
      );
 }
 
+
+// Date and time formatting
+// I cannot believe there are no normal date formatting methods and I need to either use additional libraries
+// or do it manually...
+//   https://stackoverflow.com/questions/3552461/how-to-format-a-javascript-date
+// Neither there is string formatting or padding. My god, what a language.
+
+function padNum(value, width) {
+    return value.toString().padStart(width, '0');
+}
+
+// Formats date from a Date object as 'YYYY-DD-MM'
+//
+function isoDate(value) {
+    return ''
+        + padNum(value.getFullYear(), 4)
+        + '-'
+        + padNum(value.getMonth() + 1, 2)
+        + '-'
+        + padNum(value.getDate(), 2);
+}
+
+// Formats time from a Date object as 'HH:MM:SS'
+//
+function isoTime(value) {
+    return ''
+        + padNum(value.getHours(), 2)
+        + ':'
+        + padNum(value.getMinutes(), 2)
+        + ':'
+        + padNum(value.getSeconds(), 2);
+}
+
