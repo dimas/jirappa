@@ -11,8 +11,8 @@ function findChangeFor(items, field) {
 var STATE_TRANSITIONS = [
     { fromStatus: "In Analysis", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer"  },
     { fromStatus: "In Progress", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer"  },
-    { fromStatus: "Open",        toStatus: "In Progress", actorRole: "developer", assigneeRole: "developer" },
-    { fromStatus: "Reopened",    toStatus: "In Progress", actorRole: "developer", assigneeRole: "developer" },
+    { fromStatus: "Open",        toStatus: "In Progress", actorRole: null,        assigneeRole: "developer" },
+    { fromStatus: "Reopened",    toStatus: "In Progress", actorRole: null,        assigneeRole: "developer" },
     { fromStatus: "In Review",   toStatus: "In Progress", actorRole: "reviewer",  assigneeRole: "developer" },
     { fromStatus: "In Review",   toStatus: "In Test",     actorRole: "reviewer",  assigneeRole: "developer" },
     { fromStatus: "In Test",     toStatus: "Closed",      actorRole: "developer", assigneeRole: null        },
@@ -29,7 +29,7 @@ function findTransition(fromStatus, toStatus) {
     return null;
 }
 
-function rolesFromStateTransitions(author, statusChange, assigneeChange) {
+function rolesFromStateTransitions(author, statusChange, assignee) {
     var roles = [];
 
     if (statusChange == null) {
@@ -45,8 +45,8 @@ function rolesFromStateTransitions(author, statusChange, assigneeChange) {
         roles.push({personKey: author.key, role: transition.actorRole});
     }
 
-    if (transition.assigneeRole && assigneeChange && assigneeChange.to) {
-        roles.push({personKey: assigneeChange.to, role: transition.assigneeRole});
+    if (transition.assigneeRole && assignee) {
+        roles.push({personKey: assignee, role: transition.assigneeRole});
     }
 
     return roles;
@@ -100,23 +100,28 @@ function analyzeActivity(issue, startTime, endTime) {
     var timeline = [];
 
     var roles = [];
+    var assignee = null;
     for (j = 0; j < issue.changelog.histories.length; j++) {
         var logEntry = issue.changelog.histories[j];
 
+        var assigneeChange = findChangeFor(logEntry.items, "assignee");
+        if (assigneeChange != null) {
+            assignee = assigneeChange.to;
+        }
+
         var statusChange = findChangeFor(logEntry.items, "status");
         if (statusChange != null) {
-            var assigneeChange = findChangeFor(logEntry.items, "assignee");
             timeline.push({
                 timestamp: new Date(logEntry.created),
                 author: logEntry.author.key,
                 statusChange: {
-                    assignee: (assigneeChange != null) ? assigneeChange.to : null,
+                    assignee: assignee,
                     from: statusChange.fromString,
                     to: statusChange.toString,
                 }
             });
 
-            add(roles, rolesFromStateTransitions(logEntry.author, statusChange, assigneeChange));
+            add(roles, rolesFromStateTransitions(logEntry.author, statusChange, assignee));
         }
     }
 
