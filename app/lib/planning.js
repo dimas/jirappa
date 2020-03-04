@@ -326,7 +326,9 @@ developersTableItems = tableItems;
     developersTable.bootstrapTable('load', tableItems);
 }
 
-function processUserIssues(issues) {
+function processUserIssues(issues, worklogDays) {
+
+    var worklogCutoff = new Date() - worklogDays * 24 * 60 * 60 * 1000;
 
     var contributors = [];
     for (i = 0; i < issues.length; i++) {
@@ -335,6 +337,12 @@ function processUserIssues(issues) {
         var worklogs = issue.fields.worklog.worklogs;
         for (j = 0; j < worklogs.length; j++) {
             var worklog = worklogs[j];
+
+            // Ignore too old worklog records
+            if (Date.parse(worklog.started.substring(0, 10)) < worklogCutoff) {
+                continue;
+            }
+
             // Build unique list of worklog contributors
             contributors.push(worklog.author);
         }
@@ -373,12 +381,15 @@ async function loadTeamMembers() {
     //      Not ideal (epecially when someone from another team submits worklog into our issues for any reason)
     //      but better than nothing.
 
+    // TODO: our searchIssues makes extra effort to load worklog in full only for the big part of it to be discarded by processUserIssues
+    // We have to do it otherwise our never-ending tickets bring in all the old team members because they contributed there one day...
+
     var issues = await searchIssues({
         jql: "worklogDate > -30d AND worklogAuthor in membersOf('" + GROUP + "')",
         fields: "worklog"
     });
 
-    processUserIssues(issues);
+    processUserIssues(issues, 30);
 
     developersTable.bootstrapTable('hideLoading');
 }
