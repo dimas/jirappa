@@ -32,7 +32,7 @@ function initWorklogTable() {
     });
 }
 
-function renderWorklogTable(issues) {
+function renderWorklogTable(issues, cutoffDate) {
 
     var dates = {};
 
@@ -44,6 +44,10 @@ function renderWorklogTable(issues) {
 
             // Date is in "2017-06-02T09:00:00.000+0100" format
             var date = worklog.started.substring(0, 10);
+
+            if (cutoffDate > new Date(date)) {
+                continue;
+            }
 
             var person = worklog.author.displayName;
 
@@ -165,9 +169,9 @@ function renderWorklogTable(issues) {
     }
 }
 
-function processWorklogIssues(issues) {
+function processWorklogIssues(issues, cutoffDate) {
     worklogIssuesData = issues;
-    renderWorklogTable(issues);
+    renderWorklogTable(issues, cutoffDate);
 };
 
 function saveWorklogData() {
@@ -180,12 +184,15 @@ async function loadWorklog() {
 
     await authenticate();
 
+    var cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 7);
+
     var issues = await searchIssues({
-        jql: "worklogDate > -7d AND worklogAuthor in membersOf('" + GROUP + "')",
+        jql: "worklogDate > '" + isoDate(cutoffDate) + "' AND worklogAuthor in membersOf('" + GROUP + "')",
         fields: "summary,timespent,aggregatetimespent,timeestimate,timeoriginalestimate,aggregatetimeestimate,aggregatetimeoriginalestimate,worklog,status,parent"
     });
 
-    processWorklogIssues(issues);
+    processWorklogIssues(issues, cutoffDate);
 
     $('#worklog').bootstrapTable('hideLoading');
 }
