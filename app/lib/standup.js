@@ -32,12 +32,16 @@ function initWorklogTable() {
     });
 }
 
-function renderWorklogTable(issues, cutoffDate) {
+function renderWorklogTable(issues, cutoffDate, authors) {
 
     var dates = {};
 
     for (i = 0; i < issues.length; i++) {
         var issue = issues[i];
+        if (!issue.fields.worklog) {
+            continue;
+        }
+
         var worklogs = issue.fields.worklog.worklogs;
         for (j = 0; j < worklogs.length; j++) {
             var worklog = worklogs[j];
@@ -46,6 +50,10 @@ function renderWorklogTable(issues, cutoffDate) {
             var date = worklog.started.substring(0, 10);
 
             if (cutoffDate > new Date(date)) {
+                continue;
+            }
+
+            if (authors != null && authors.indexOf(worklog.author.key) == -1) {
                 continue;
             }
 
@@ -169,9 +177,9 @@ function renderWorklogTable(issues, cutoffDate) {
     }
 }
 
-function processWorklogIssues(issues, cutoffDate) {
+function processWorklogIssues(issues, cutoffDate, authors) {
     worklogIssuesData = issues;
-    renderWorklogTable(issues, cutoffDate);
+    renderWorklogTable(issues, cutoffDate, authors);
 };
 
 function saveWorklogData() {
