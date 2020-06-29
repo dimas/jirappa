@@ -676,7 +676,7 @@ async function loadSprintPlan(id) {
     await authenticate();
 
     var issues = await searchIssues({
-       jql: "Sprint=" + id + "",
+       jql: "Sprint=" + id + " AND status != 'Closed'",
        fields: 'status,priority,summary,parent,assignee,timeoriginalestimate,timespent,timeestimate'
     });
 
