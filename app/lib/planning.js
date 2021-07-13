@@ -233,7 +233,7 @@ function refreshDeveloperStatsTable() {
 function getDeveloperStatsItemIndex(key) {
     for (var i = 0; i < developersTableItems.length; i++) {
         var item = developersTableItems[i];
-        if (item.developer != null && key == item.developer.key) {
+        if (item.developer != null && key == item.developer.name) {
             return i;
         }
     }
@@ -255,7 +255,7 @@ function developerStatsRowStyle(row, index) {
 }
 
 function formatDeveloperCapacity(capacity, row, index) {
-    return '<input type=text data-type="capacity" person-key="' + escapeText(row.developer.key)  + '" value="' + formatDurationDays(capacity) +  '" />';
+    return '<input type=text data-type="capacity" person-key="' + escapeText(row.developer.name)  + '" value="' + formatDurationDays(capacity) +  '" />';
 }
 
 
@@ -281,6 +281,12 @@ function initDevelopersTable() {
     });
 }
 
+function personDisplayName(person) {
+    // After one of our devs was removed from the organisation, I see him as a structure with
+    // active=false, and 'name'. No 'key', no 'displayName', no avatar URLs....
+    return person.displayName || person.name;
+}
+
 function renderDevelopersTable() {
 
     var tableItems = [];
@@ -288,7 +294,7 @@ function renderDevelopersTable() {
     for (var i = 0; i < teamMembers.length; i++) {
       item = {
           developer: teamMembers[i],
-          displayName: teamMembers[i].displayName,
+          displayName: personDisplayName(teamMembers[i]),
           debt: 0,
           capacity: parseDuration('9d'),
           selected: 0,
@@ -321,7 +327,7 @@ function renderDevelopersTable() {
       tableItems.push(item);
     }
 
-developersTableItems = tableItems;
+    developersTableItems = tableItems;
 
     developersTable.bootstrapTable('load', tableItems);
 }
@@ -353,7 +359,7 @@ function processUserIssues(issues, worklogDays) {
     // Generate a map of known keys so we can implement isTeamMember without linear search
     teamMemberKeys = [];
     for (i = 0; i < teamMembers.length; i++) {
-        teamMemberKeys[teamMembers[i].key] = true;
+        teamMemberKeys[teamMembers[i].name] = true;
     }
 
     renderDevelopersTable();
@@ -549,7 +555,7 @@ function processSprintIssues(issues) {
         issueData.timeSpent = issue.fields.timespent;
         issueData.timeLeft = issue.fields.timeestimate;
         if (issue.fields.assignee) {
-            issueData.assignee = issue.fields.assignee.key;
+            issueData.assignee = issue.fields.assignee.name;
         }
     }
 
@@ -650,10 +656,10 @@ function generateAssigneeDropdownItems(row, showTimeAvailable) {
     html += divider;
 
     for (var i = 0; i < teamMembers.length; i++) {
-      var stats = getDeveloperStatsItem(teamMembers[i].key);
-      html += generateAssigneeMenuItem(teamMembers[i].key,
-                                       row.selectedAssignee == teamMembers[i].key,
-                                       escapeText(teamMembers[i].displayName),
+      var stats = getDeveloperStatsItem(teamMembers[i].name);
+      html += generateAssigneeMenuItem(teamMembers[i].name,
+                                       row.selectedAssignee == teamMembers[i].name,
+                                       escapeText(personDisplayName(teamMembers[i])),
                                        (showTimeAvailable && stats != null) ? formatDurationDays(stats.available) : null);
     }
 

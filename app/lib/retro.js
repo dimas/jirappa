@@ -1,8 +1,23 @@
 
+function personDisplayName(person) {
+    // After one of our devs was removed from the organisation, I see him as a structure with
+    // active=false, and 'name'. No 'key', no 'displayName', no avatar URLs....
+    return person.displayName || person.name;
+}
+
 function formatContributors(contributors) {
     var result = '';
     for (var i = 0; i < contributors.length; i++) {
-         result += '<img style="width: 24px; height: 24px" src="' + contributors[i]['avatarUrls']['48x48'] + '" title="' +  escapeText(contributors[i].displayName) + '"/>';
+        let avatar;
+        let name;
+        // After one of our devs was removed from the organisation, we get a stub for him without any avatar URLs.
+        if (contributors[i].avatarUrls) {
+            avatar = contributors[i].avatarUrls['48x48'];
+        } else {
+            // On our JIRA this URL represents a small question mark "avatar" shown for Unassigned tasks
+            avatar = JIRA_URL + 'secure/useravatar?size=small&avatarId=10123';
+        }
+        result += '<img style="width: 24px; height: 24px" src="' + avatar + '" title="' +  escapeText(personDisplayName(contributors[i])) + '"/>';
     }
     return result;
 }
