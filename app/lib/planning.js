@@ -822,7 +822,7 @@ function processDebtIssues(issues) {
         issueData.timeSpent = issue.fields.timespent;
         issueData.timeLeft = issue.fields.timeestimate;
         if (issue.fields.assignee) {
-            issueData.selectedAssignee = issue.fields.assignee.key;
+            issueData.selectedAssignee = issue.fields.assignee.name;
         }
     }
 
