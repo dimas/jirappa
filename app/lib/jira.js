@@ -1,7 +1,7 @@
 
 JIRA_SESSION_URL = JIRA_REST_URL + "/rest/auth/1/session"
 
-AUTH_HEADER = 'Basic ' + btoa(JIRA_USERNAME + ':' + JIRA_TOKEN)
+AUTH_HEADER = 'Basic ' + btoa(JIRA_USERNAME + ':' + JIRA_PASSWORD)
 
 var jiraRequestCount = 0;
 
