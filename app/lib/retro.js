@@ -80,6 +80,7 @@ function renderProgressTable(issues) {
                     summary: taskIssue.fields.summary,
                     status: taskIssue.fields.status.name,
                     lastWorklogDate: lastWorklogDate,
+                    contributors: [],
                     subtasks: {}
                 };
             }

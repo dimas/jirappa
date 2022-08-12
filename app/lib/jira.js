@@ -1,6 +1,8 @@
 
 JIRA_SESSION_URL = JIRA_REST_URL + "/rest/auth/1/session"
 
+AUTH_HEADER = 'Basic ' + btoa(JIRA_USERNAME + ':' + JIRA_TOKEN)
+
 var jiraRequestCount = 0;
 
 async function loadPages(url, list, requestData) {
@@ -20,6 +22,7 @@ async function loadPages(url, list, requestData) {
 
         response = await jQuery.get({
             url: url,
+            headers: {"Authorization": AUTH_HEADER},
             data: requestData,
             dataType: "json"
         });
@@ -84,25 +87,13 @@ async function expandWorklogs(issues) {
     await Promise.all(promises);
 }
 
-async function login(username, password) {
-    console.log("Logging in as " + username);
-    await jQuery.post({
-        url: JIRA_SESSION_URL,
-        dataType: "json",
-        contentType: "application/json",
-        data: JSON.stringify({
-            username: username,
-            password: password,
-        }),
-    });
-}
-
 async function authenticate() {
 
     console.log('Checking session');
 
     request = jQuery.get({
         url: JIRA_SESSION_URL,
+        headers: {"Authorization": AUTH_HEADER},
         dataType: "json"
     });
 
@@ -121,7 +112,10 @@ async function authenticate() {
       }
     }
 
-    await login(JIRA_USERNAME, JIRA_PASSWORD);
+    // We used to do login here but it does not work with modern JIRA
+    // See https://developer.atlassian.com/cloud/confluence/deprecation-notice-basic-auth/
+    // So in fact our session check should always succeed. If it does not - the credentials are invalid.
+    throw 'Invalid auth';
 }
 
 async function assignIssue(issue, assignee) {
@@ -131,6 +125,7 @@ async function assignIssue(issue, assignee) {
     request = jQuery.ajax({
         url: JIRA_REST_URL + "/rest/api/2/issue/" + issue,
         type: 'PUT',
+        headers: {"Authorization": AUTH_HEADER},
         dataType: "json",
         contentType: "application/json",
         data: JSON.stringify({
