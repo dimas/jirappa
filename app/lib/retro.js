@@ -78,7 +78,7 @@ function renderProgressTable(issues) {
                 tasks[taskIssue.key] = taskData = {
                     key: taskIssue.key, 
                     summary: taskIssue.fields.summary,
-                    status: taskIssue.fields.status.name,
+                    status: issueStatusCode(taskIssue.fields.status.name),
                     lastWorklogDate: lastWorklogDate,
                     contributors: [],
                     subtasks: {}
@@ -91,7 +91,7 @@ function renderProgressTable(issues) {
                     taskData.subtasks[issue.key] = subtaskData = {
                         key: issue.key, 
                         summary: issue.fields.summary,
-                        status: issue.fields.status.name,
+                        status: issueStatusCode(issue.fields.status.name),
                         timeEstimated: issue.fields.aggregatetimeoriginalestimate,
                         timeSpent: issue.fields.aggregatetimespent,
                         timeLeft: issue.fields.aggregatetimeestimate,

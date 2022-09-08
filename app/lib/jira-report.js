@@ -128,15 +128,24 @@ function comparePersonDisplayName(a, b) {
     return compare(a.displayName, b.displayName);
 }
 
+// Convert 'In Progress' and 'IN TEST' to 'InProgress' and 'InTest' respectively
+function issueStatusCode(status) {
+    const words = status.split(' ');
+    for (let i = 0; i < words.length; i++) {
+        words[i] = words[i][0].toUpperCase() + words[i].substr(1).toLowerCase();
+    }
+
+    return words.join('');
+}
 
 var progressStatusOrder = [
-        "In Progress",
+        "InProgress",
         "Open",
-        "In Review",
-        "In Analysis",
+        "InReview",
+        "InAnalysis",
         "New",
         "Blocked",
-        "In Test",
+        "InTest",
         "Closed",
 ];
 
@@ -150,7 +159,7 @@ function uniquePeople(list) {
         var j;
         var found = false;
         for (j = 0; j < result.length; j++) {
-            if (result[j].key == list[i].key) {
+            if (result[j].accountId == list[i].accountId) {
                 found = true;
                 break;
             }

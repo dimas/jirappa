@@ -135,7 +135,7 @@ function filterIssues(person, status) {
     }
 
     if (status != 'total') {
-        issues = issues.filter(function(i) { return issueStatusCode(i.status) == status; });
+        issues = issues.filter(function(i) { return statusColumn(i.status) == status; });
     }
 
     return issues;
@@ -175,8 +175,7 @@ function initStatesTable() {
 
 }
 
-function issueStatusCode(status) {
-    var status = status.replace(' ', '');
+function statusColumn(status) {
     if (status == 'InProgress' || status == 'Closed' || status == 'InTest' || status == 'InReview' || status == 'Blocked') {
         return status;
     } else {
@@ -204,14 +203,14 @@ function renderStatesTable(issues) {
             };
         }
 
-        var statusCode = issueStatusCode(status);
-        personData.statusCount[statusCode] |= 0;
-        personData.statusCount[statusCode] += 1;
+        var statusGroup = statusColumn(issueStatusCode(status));
+        personData.statusCount[statusGroup] |= 0;
+        personData.statusCount[statusGroup] += 1;
         personData.totalCount++;
 
         issuesData.push({
             issue: issue.key,
-            status: status,
+            status: issueStatusCode(status),
             assignee: person,
             issuePriority: issue.fields.priority ? {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl} : null,
             issueSummary: issue.fields.summary,

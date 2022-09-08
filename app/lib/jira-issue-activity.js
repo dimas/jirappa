@@ -9,15 +9,15 @@ function findChangeFor(items, field) {
 }
 
 var STATE_TRANSITIONS = [
-    { fromStatus: "In Analysis", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer"  },
-    { fromStatus: "In Progress", toStatus: "In Review",   actorRole: "developer", assigneeRole: "reviewer"  },
-    { fromStatus: "Open",        toStatus: "In Progress", actorRole: null,        assigneeRole: "developer" },
-    { fromStatus: "Reopened",    toStatus: "In Progress", actorRole: null,        assigneeRole: "developer" },
-    { fromStatus: "In Review",   toStatus: "In Progress", actorRole: "reviewer",  assigneeRole: "developer" },
-    { fromStatus: "In Review",   toStatus: "In Test",     actorRole: "reviewer",  assigneeRole: "developer" },
-    { fromStatus: "In Test",     toStatus: "Closed",      actorRole: "developer", assigneeRole: null        },
-    { fromStatus: "In Test",     toStatus: "Reopened",    actorRole: null,        assigneeRole: "developer" },
-    { fromStatus: "In Progress", toStatus: "In Test",     actorRole: "reviewer",  assigneeRole: "developer" },
+    { fromStatus: "InAnalysis", toStatus: "InReview",   actorRole: "developer", assigneeRole: "reviewer"  },
+    { fromStatus: "InProgress", toStatus: "InReview",   actorRole: "developer", assigneeRole: "reviewer"  },
+    { fromStatus: "Open",       toStatus: "InProgress", actorRole: null,        assigneeRole: "developer" },
+    { fromStatus: "Reopened",   toStatus: "InProgress", actorRole: null,        assigneeRole: "developer" },
+    { fromStatus: "InReview",   toStatus: "InProgress", actorRole: "reviewer",  assigneeRole: "developer" },
+    { fromStatus: "InReview",   toStatus: "InTest",     actorRole: "reviewer",  assigneeRole: "developer" },
+    { fromStatus: "InTest",     toStatus: "Closed",     actorRole: "developer", assigneeRole: null        },
+    { fromStatus: "InTest",     toStatus: "Reopened",   actorRole: null,        assigneeRole: "developer" },
+    { fromStatus: "InProgress", toStatus: "InTest",     actorRole: "reviewer",  assigneeRole: "developer" },
 ]
 
 function findTransition(fromStatus, toStatus) {
@@ -29,14 +29,10 @@ function findTransition(fromStatus, toStatus) {
     return null;
 }
 
-function rolesFromStateTransitions(author, statusChange, assignee) {
+function rolesFromStateTransitions(author, fromStatus, toStatus, assignee) {
     var roles = [];
 
-    if (statusChange == null) {
-        return roles;
-    }
-
-    var transition = findTransition(statusChange.fromString, statusChange.toString);
+    var transition = findTransition(fromStatus, toStatus);
     if (transition == null) {
         return roles;
     }
@@ -111,17 +107,19 @@ function analyzeActivity(issue, startTime, endTime) {
 
         var statusChange = findChangeFor(logEntry.items, "status");
         if (statusChange != null) {
+            var fromStatus = issueStatusCode(statusChange.fromString);
+            var toStatus = issueStatusCode(statusChange.toString);
             timeline.push({
                 timestamp: new Date(logEntry.created),
                 author: logEntry.author.key,
                 statusChange: {
                     assignee: assignee,
-                    from: statusChange.fromString,
-                    to: statusChange.toString,
+                    from: fromStatus,
+                    to: toStatus,
                 }
             });
 
-            add(roles, rolesFromStateTransitions(logEntry.author, statusChange, assignee));
+            add(roles, rolesFromStateTransitions(logEntry.author, fromStatus, toStatus, assignee));
         }
     }
 
@@ -180,7 +178,7 @@ function analyzeActivity(issue, startTime, endTime) {
 
             var role = null;
 
-            if (currentStatus == "In Test" || currentStatus == "Closed") {
+            if (currentStatus == "InTest" || currentStatus == "Closed") {
                 // Chances are that anything logged during test state was testing.
                 // "Closed" tries to account for the fact one can close the ticket first and then log the testing time.
                 role = "tester";

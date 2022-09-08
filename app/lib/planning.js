@@ -61,8 +61,6 @@ function hierarchicalCompare(a, b, comparator) {
 // no matter what sorting order is used - ascending or descending, and sorting by which column is done.
 //
 function nestedIssueTableSorter(sortName, sortOrder) {
-    console.log("customSort: " + sortName + ", " + sortOrder);
-
     const index = this.header.fields.indexOf(this.options.sortName);
 
     // Do not attempt to sort by nonexistent column. During init we are called with undefined
@@ -233,7 +231,7 @@ function refreshDeveloperStatsTable() {
 function getDeveloperStatsItemIndex(key) {
     for (var i = 0; i < developersTableItems.length; i++) {
         var item = developersTableItems[i];
-        if (item.developer != null && key == item.developer.name) {
+        if (item.developer != null && key == item.developer.accountId) {
             return i;
         }
     }
@@ -255,7 +253,7 @@ function developerStatsRowStyle(row, index) {
 }
 
 function formatDeveloperCapacity(capacity, row, index) {
-    return '<input type=text data-type="capacity" person-key="' + escapeText(row.developer.name)  + '" value="' + formatDurationDays(capacity) +  '" />';
+    return '<input type=text data-type="capacity" person-key="' + escapeText(row.developer.accountId)  + '" value="' + formatDurationDays(capacity) +  '" />';
 }
 
 
@@ -359,7 +357,7 @@ function processUserIssues(issues, worklogDays) {
     // Generate a map of known keys so we can implement isTeamMember without linear search
     teamMemberKeys = [];
     for (i = 0; i < teamMembers.length; i++) {
-        teamMemberKeys[teamMembers[i].name] = true;
+        teamMemberKeys[teamMembers[i].accountId] = true;
     }
 
     renderDevelopersTable();
@@ -529,6 +527,9 @@ function processSprintIssues(issues) {
             // Create parent issue if it is missing
             if (!taskData) {
                 taskData = tasks[parentIssue.key] = {
+                    key: parentIssue.key,
+                    summary: parentIssue.fields.summary,
+                    status: issueStatusCode(parentIssue.fields.status.name),
                     subtasks: {}
                 };
             }
@@ -549,13 +550,13 @@ function processSprintIssues(issues) {
 
         issueData.key = issue.key;
         issueData.summary = issue.fields.summary;
-        issueData.status = issue.fields.status.name;
+        issueData.status = issueStatusCode(issue.fields.status.name);
         issueData.priority = {name: issue.fields.priority.name, iconUrl: issue.fields.priority.iconUrl};
         issueData.timeEstimated = issue.fields.timeoriginalestimate;
         issueData.timeSpent = issue.fields.timespent;
         issueData.timeLeft = issue.fields.timeestimate;
         if (issue.fields.assignee) {
-            issueData.assignee = issue.fields.assignee.name;
+            issueData.assignee = issue.fields.assignee.accountId;
         }
     }
 
@@ -566,7 +567,7 @@ function processSprintIssues(issues) {
             for (var t in tasks) {
                 var taskData = tasks[t];
 /*
-                if (taskData.status == "In Test" || taskData.status == "Closed") {
+                if (taskData.status == "InTest" || taskData.status == "Closed") {
                     // Ignore finished tasks
                     continue;
                 }
@@ -656,9 +657,9 @@ function generateAssigneeDropdownItems(row, showTimeAvailable) {
     html += divider;
 
     for (var i = 0; i < teamMembers.length; i++) {
-      var stats = getDeveloperStatsItem(teamMembers[i].name);
-      html += generateAssigneeMenuItem(teamMembers[i].name,
-                                       row.selectedAssignee == teamMembers[i].name,
+      var stats = getDeveloperStatsItem(teamMembers[i].accountId);
+      html += generateAssigneeMenuItem(teamMembers[i].accountId,
+                                       row.selectedAssignee == teamMembers[i].accountId,
                                        escapeText(personDisplayName(teamMembers[i])),
                                        (showTimeAvailable && stats != null) ? formatDurationDays(stats.available) : null);
     }
@@ -797,6 +798,9 @@ function processDebtIssues(issues) {
             // Create parent issue if it is missing
             if (!taskData) {
                 taskData = tasks[parentIssue.key] = {
+                    key: parentIssue.key,
+                    summary: parentIssue.fields.summary,
+                    status: issueStatusCode(parentIssue.fields.status.name),
                     subtasks: {}
                 };
             }
@@ -817,15 +821,14 @@ function processDebtIssues(issues) {
 
         issueData.key = issue.key;
         issueData.summary = issue.fields.summary;
-        issueData.status = issue.fields.status.name;
+        issueData.status = issueStatusCode(issue.fields.status.name);
         issueData.timeEstimated = issue.fields.timeoriginalestimate;
         issueData.timeSpent = issue.fields.timespent;
         issueData.timeLeft = issue.fields.timeestimate;
         if (issue.fields.assignee) {
-            issueData.selectedAssignee = issue.fields.assignee.name;
+            issueData.selectedAssignee = issue.fields.assignee.accountId;
         }
     }
-
 
     var tableItems = [];
     var merges = [];
@@ -834,7 +837,7 @@ function processDebtIssues(issues) {
             for (var t in tasks) {
                 var taskData = tasks[t];
 
-                if (taskData.status == "In Test" || taskData.status == "Closed") {
+                if (taskData.status == "InTest" || taskData.status == "Closed") {
                     // Ignore finished tasks
                     continue;
                 }

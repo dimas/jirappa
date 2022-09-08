@@ -131,7 +131,7 @@ async function assignIssue(issue, assignee) {
         data: JSON.stringify({
             fields: {
                 assignee: {
-                    name: assignee
+                    accountId: assignee
                 }
             }
         }),
