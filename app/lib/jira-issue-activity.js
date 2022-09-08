@@ -38,7 +38,7 @@ function rolesFromStateTransitions(author, fromStatus, toStatus, assignee) {
     }
 
     if (transition.actorRole) {
-        roles.push({personKey: author.key, role: transition.actorRole});
+        roles.push({personKey: author, role: transition.actorRole});
     }
 
     if (transition.assigneeRole && assignee) {
@@ -111,7 +111,7 @@ function analyzeActivity(issue, startTime, endTime) {
             var toStatus = issueStatusCode(statusChange.toString);
             timeline.push({
                 timestamp: new Date(logEntry.created),
-                author: logEntry.author.key,
+                author: logEntry.author.displayName,
                 statusChange: {
                     assignee: assignee,
                     from: fromStatus,
@@ -119,7 +119,7 @@ function analyzeActivity(issue, startTime, endTime) {
                 }
             });
 
-            add(roles, rolesFromStateTransitions(logEntry.author, fromStatus, toStatus, assignee));
+            add(roles, rolesFromStateTransitions(logEntry.author.displayName, fromStatus, toStatus, assignee));
         }
     }
 
@@ -138,14 +138,14 @@ function analyzeActivity(issue, startTime, endTime) {
     issue.fields.worklog.worklogs.forEach(function(worklog) {
             timeline.push({
                 timestamp: new Date(worklog.started),
-                author: worklog.author.key,
+                author: worklog.author.displayName,
                 worklog: {
                     timeSpent: worklog.timeSpentSeconds,
                     comment: worklog.comment
                 }
             });
 
-            var personKey = worklog.author.key;
+            var personKey = worklog.author.displayName;
             personTime[personKey] = (personTime[personKey] || 0) + worklog.timeSpentSeconds;
     });
 
