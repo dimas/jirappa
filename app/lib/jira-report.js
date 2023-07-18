@@ -2,17 +2,25 @@
 PRIORITY_ORDER = [
     "Un-Prioritized",
     "Trivial",
+    "Lowest",
+    "Low",
     "Minor",
+    "Minor (migrated)",
+    "Medium",
     "Major",
+    "Major (migrated)",
+    "High",
+    "Highest",
     "Critical",
     "Blocker",
 ]
 
-function getPriorityOrder(priorityName) {
-    return PRIORITY_ORDER.indexOf(priorityName);
+function getPriorityOrder(priority) {
+    return priority ? PRIORITY_ORDER.indexOf(priority.name) : -1;
 }
 
 function formatIssuePriority(priority) {
+
     if (priority == null) {
         return '';
     }
@@ -21,7 +29,7 @@ function formatIssuePriority(priority) {
 }
 
 function issuePrioritySorter(a, b) {
-    return compare(getPriorityOrder(a.name), getPriorityOrder(b.name));
+    return compare(getPriorityOrder(a), getPriorityOrder(b));
 }
 
 function formatIssueKey(issue) {

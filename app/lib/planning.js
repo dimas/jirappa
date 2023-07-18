@@ -520,7 +520,16 @@ function processSprintIssues(issues) {
     for (i = 0; i < issues.length; i++) {
         var issue = issues[i];
 
-        var parentIssue = issue.fields.parent; 
+        var parentIssue = issue.fields.parent;
+
+        // Previously epics were not returned as parents of the issues they contain and now they do.
+        // Our UI is not exactly ready for that because it tries to show 2-level hierarchy moving
+        // all these issues under epic and not sorting them globally.
+        // So, as a quick fix - ignore parent issue if it is an epic.
+        if (parentIssue != null && parentIssue.fields.issuetype.name == 'Epic') {
+            parentIssue = null;
+        }
+
         if (parentIssue) {
             // It is a subtask
             var taskData = tasks[parentIssue.key];
@@ -791,7 +800,16 @@ function processDebtIssues(issues) {
     for (i = 0; i < issues.length; i++) {
         var issue = issues[i];
 
-        var parentIssue = issue.fields.parent; 
+        var parentIssue = issue.fields.parent;
+
+        // Previously epics were not returned as parents of the issues they contain and now they do.
+        // Our UI is not exactly ready for that because it tries to show 2-level hierarchy moving
+        // all these issues under epic and not sorting them globally.
+        // So, as a quick fix - ignore parent issue if it is an epic.
+        if (parentIssue != null && parentIssue.fields.issuetype.name == 'Epic') {
+            parentIssue = null;
+        }
+
         if (parentIssue) {
             // It is a subtask
             var taskData = tasks[parentIssue.key];
