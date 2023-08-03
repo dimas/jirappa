@@ -69,7 +69,8 @@ function renderProgressTable(issues) {
         contributors = uniquePeople(contributors);
 
             var taskIssue = issue;
-            if (issue.fields.parent) {
+
+            if (issue.fields.parent && issue.fields.issuetype.subtask) {
                 taskIssue = issue.fields.parent;
             }
 
@@ -126,7 +127,7 @@ function renderProgressTable(issues) {
             var tasks = values(tasks)
 //                         .filter(function(a) { return a.lastWorklogDate > cutoffDate; })
 //                         .sort(function(a, b) { return compareJiraKey(b.key, a.key); });
-                         .sort(function(a, b) { return compareStatus(b.status, a.status); });
+                         .sort(function(a, b) { return compareStatus(a.status, b.status); });
             for (var t in tasks) {
                 var taskData = tasks[t];
 
@@ -182,8 +183,8 @@ async function loadProgress() {
     await authenticate();
 
     var issues = await searchIssues({
-        jql: "project ='" + PROJECT + "' AND sprint in openSprints() and issuetype not in subtaskIssueTypes()",
-        fields: "summary,timespent,aggregatetimespent,timeestimate,timeoriginalestimate,aggregatetimeestimate,aggregatetimeoriginalestimate,worklog,status,parent"
+        jql: "project ='" + PROJECT + "' AND sprint in openSprints()",
+        fields: "issuetype,summary,timespent,aggregatetimespent,timeestimate,timeoriginalestimate,aggregatetimeestimate,aggregatetimeoriginalestimate,worklog,status,parent"
     });
 
     processProgressIssues(issues);

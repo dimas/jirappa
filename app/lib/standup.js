@@ -86,7 +86,7 @@ function renderWorklogTable(issues, cutoffDate, authors) {
                 personData.tasks[taskIssue.key] = taskData = {
                     key: taskIssue.key, 
                     summary: taskIssue.fields.summary,
-                    status: taskIssue.fields.status.name,
+                    status: issueStatusCode(taskIssue.fields.status.name),
                     timeLogged: 0,
                     subtasks: {}
                 };
@@ -98,7 +98,7 @@ function renderWorklogTable(issues, cutoffDate, authors) {
                     taskData.subtasks[issue.key] = subtaskData = {
                         key: issue.key, 
                         summary: issue.fields.summary,
-                        status: issue.fields.status.name,
+                        status: issueStatusCode(issue.fields.status.name),
                         timeLogged: 0
                     };
                 }
@@ -193,7 +193,7 @@ async function loadWorklog() {
     await authenticate();
 
     var cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - 7);
+    cutoffDate.setDate(cutoffDate.getDate() - 30);
 
     var issues = await searchIssues({
         jql: "worklogDate > '" + isoDate(cutoffDate) + "' AND worklogAuthor in membersOf('" + GROUP + "')",
